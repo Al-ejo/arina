@@ -470,7 +470,30 @@ function initAILoveLetter() {
   const btn = document.getElementById('ai-love-btn');
   if (!btn) return;
 
-  btn.addEventListener('click', async () => {
+  // Pre-written love messages — personal, warm, rotate randomly
+  const messagesEn = [
+    "From the moment I met you in Istanbul, I knew something in my life had changed forever. You are the calm in my chaos, the laugh in my quiet, and the reason I look forward to every single day.",
+    "Across every mile between New York and Kolomna, I feel you. The distance never made me love you less — if anything, it made me realize how much space you take up in my heart.",
+    "You are the only person who can make me laugh without trying, feel at home without a house, and feel loved without saying a word. Two little worms, always.",
+    "Every trip we've taken together has been the best trip of my life. Istanbul, Tbilisi, Kolomna — you make every city feel like home because you're there.",
+    "I love you for your caring heart, your understanding soul, and the way you can be completely yourself around me. You are my favorite person in the entire world.",
+    "The day I first saw you I had butterflies I still haven't gotten rid of. I hope I never do. You are everything, Arina.",
+    "You support me from thousands of miles away better than most people could from the same room. That's not normal — that's something rare. That's you.",
+  ];
+
+  const messagesRu = [
+    "С того момента, как я встретил тебя в Стамбуле, я знал, что что-то в моей жизни изменилось навсегда. Ты — спокойствие в моём хаосе, смех в тишине и причина, по которой я жду каждый новый день.",
+    "Через все мили между Нью-Йорком и Коломной я чувствую тебя. Расстояние никогда не уменьшало мою любовь — наоборот, оно помогло мне понять, сколько места ты занимаешь в моём сердце.",
+    "Ты единственный человек, который может рассмешить меня без усилий, дать ощущение дома без стен и любви без слов. Два маленьких червячка, всегда.",
+    "Каждая поездка, которую мы совершили вместе, была лучшей поездкой в моей жизни. Стамбул, Тбилиси, Коломна — ты делаешь каждый город домом, потому что ты там.",
+    "Я люблю тебя за твоё заботливое сердце, понимающую душу и то, как ты можешь быть собой рядом со мной. Ты мой любимый человек на всей земле.",
+    "В день, когда я впервые увидел тебя, у меня были бабочки в животе, от которых я до сих пор не избавился. Надеюсь, никогда не избавлюсь. Ты — всё, Арина.",
+    "Ты поддерживаешь меня за тысячи миль лучше, чем большинство людей могли бы из соседней комнаты. Это не обычное — это редкое. Это ты.",
+  ];
+
+  let lastIndex = -1;
+
+  btn.addEventListener('click', () => {
     const output  = document.getElementById('ai-love-output');
     const loading = document.getElementById('ai-love-loading');
     const lang    = currentLang;
@@ -480,49 +503,31 @@ function initAILoveLetter() {
     if (output)  output.style.display  = 'none';
     if (loading) loading.style.display = 'flex';
 
-    const prompt = lang === 'ru'
-      ? `Ты пишешь от имени Андреса — его романтическое послание Арине. Андрес и Арина познакомились в Стамбуле в октябре 2025 года. Они снова встретились в Тбилиси в январе 2026 года. В марте 2026 года Андрес впервые посетил её дом в Коломне, Россия. Андрес любит в Арине её заботу, понимание, поддержку даже через расстояние, её чувство юмора и то, как спокойно и по-домашнему он чувствует себя рядом с ней. Они нежно называют друг друга "два маленьких червячка". Напиши уникальное, тёплое и искреннее любовное послание на русском языке, 3–4 предложения. Только текст послания — никаких вступлений, подписей или объяснений.`
-      : `You are writing on behalf of Andrés — a romantic message to Arina. Andrés and Arina first met in Istanbul in October 2025. They met again in Tbilisi in January 2026. In March 2026 Andrés visited her home in Kolomna, Russia for the first time. Andrés loves Arina for her caring nature, how understanding she is, the support she gives even across the distance, her humor, and how calm and at home he feels with her. They affectionately call each other "two little worms". Write a unique, warm and sincere love message in English, 3–4 sentences. Only the message text — no preambles, sign-offs or explanations.`;
+    // Pick a random message different from the last one
+    const messages = lang === 'ru' ? messagesRu : messagesEn;
+    let idx;
+    do { idx = Math.floor(Math.random() * messages.length); } while (idx === lastIndex);
+    lastIndex = idx;
 
-    try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
-          messages: [{ role: 'user', content: prompt }],
-        }),
-      });
-
-      const data = await res.json();
-      const text = data.content?.map(b => b.text || '').join('').trim();
-
+    // Small delay to feel like it's "thinking"
+    setTimeout(() => {
       if (loading) loading.style.display = 'none';
       if (output) {
         output.style.display = 'block';
         output.style.opacity = '0';
         output.style.transform = 'translateY(12px)';
         const textEl = output.querySelector('.ai-text');
-        if (textEl) textEl.textContent = text || t('ai.error');
+        if (textEl) textEl.textContent = messages[idx];
         requestAnimationFrame(() => {
           output.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
           output.style.opacity = '1';
           output.style.transform = 'translateY(0)';
         });
       }
-    } catch (err) {
-      if (loading) loading.style.display = 'none';
-      if (output) {
-        output.style.display = 'block';
-        const textEl = output.querySelector('.ai-text');
-        if (textEl) textEl.textContent = t('ai.error');
-      }
-    }
-
-    btn.disabled = false;
-    btn.style.opacity = '1';
-    btn.textContent = t('ai.another');
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.textContent = t('ai.another');
+    }, 1400);
   });
 }
 
