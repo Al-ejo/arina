@@ -1028,19 +1028,16 @@ function checkAuth() {
   const path     = window.location.pathname.toLowerCase();
   const filename = path.split('/').pop();
 
-  // These are the only pages that don't require auth
-  const publicPages = ['enter.html', ''];
-  const isPublic = publicPages.includes(filename) ||
-                   path.endsWith('/arina/') ||
-                   path.endsWith('/arina');
+  // Only the entry page itself is public
+  const isEntryPage = filename === 'enter.html';
 
-  if (!isAuthenticated() && !isPublic) {
+  if (!isAuthenticated() && !isEntryPage) {
     window.location.replace('enter.html');
     return;
   }
 
   // Already logged in — skip entry page
-  if (isAuthenticated() && filename === 'enter.html') {
+  if (isAuthenticated() && isEntryPage) {
     window.location.replace('index.html');
     return;
   }

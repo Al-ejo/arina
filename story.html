@@ -894,9 +894,17 @@
     }
     updateHeroTitle();
 
-    // Re-run on every language toggle
+    // Re-run on every language toggle — update hero title AND reset love letter
     const _origToggle = toggleLanguage;
-    toggleLanguage = function() { _origToggle(); updateHeroTitle(); };
+    toggleLanguage = function() {
+      _origToggle();
+      updateHeroTitle();
+      // Reset love letter output so next click shows correct language
+      const output = document.getElementById('ai-love-output');
+      const btn    = document.getElementById('ai-love-btn');
+      if (output) output.style.display = 'none';
+      if (btn && !btn.disabled) btn.textContent = t('ai.btn');
+    };
 
     /* ── Love list scroll animation ── */
     const loveObserver = new IntersectionObserver(entries => {
