@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A & A ✦ Private</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+
+    /* ── Page base ── */
+    .private-page {
+      background: #F0E4DA;
+      min-height: 100vh;
+    }
+
+    .private-hero {
+      padding-top: calc(var(--nav-height) + 4rem);
+      padding-bottom: 3rem;
+      text-align: center;
+    }
+
+    /* ── Vault Lock Overlay ── */
+    .vault-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(44, 26, 46, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 1500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      transition: opacity 0.6s ease;
+    }
+
+    .vault-overlay.unlocking {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .vault-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(242, 196, 206, 0.6);
+      border-radius: var(--radius-xl);
+      padding: 3rem 2.5rem;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 32px 80px rgba(44, 26, 46, 0.3);
+      animation: card-in 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes card-in {
+      from { opacity: 0; transform: translateY(24px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Lock icon */
+    .vault-lock {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--blush-light), rgba(201,160,192,0.2));
+      border: 1px solid rgba(242,196,206,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin: 0 auto 1.5rem;
+      transition: transform 0.4s ease;
+    }
+
+    .vault-lock.unlocked {
+      background: linear-gradient(135deg, rgba(212,175,106,0.3), rgba(240,217,168,0.3));
+      border-color: rgba(212,175,106,0.5);
+      transform: scale(1.1);
+    }
+
+    .vault-title {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--plum-dark);
+      margin-bottom: 0.4rem;
+    }
+
+    .vault-subtitle {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 0.95rem;
+      color: var(--plum);
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+
+    /* Input */
+    .vault-input-wrap {
+      position: relative;
+      margin-bottom: 0.75rem;
+    }
+
+    .vault-input {
+      width: 100%;
+      padding: 13px 48px 13px 20px;
+      border: 1.5px solid rgba(242,196,206,0.8);
+      border-radius: 50px;
+      background: rgba(255,255,255,0.9);
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      color: var(--plum-dark);
+      outline: none;
+      text-align: center;
+      letter-spacing: 0.06em;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .vault-input::placeholder { color: var(--mauve); opacity: 0.6; }
+    .vault-input:focus {
+      border-color: var(--mauve);
+      box-shadow: 0 0 0 4px rgba(201,160,192,0.15);
+    }
+    .vault-input.error {
+      border-color: #E87B8B;
+      animation: shake 0.4s ease;
+    }
+
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%      { transform: translateX(-8px); }
+      40%      { transform: translateX(8px); }
+      60%      { transform: translateX(-5px); }
+      80%      { transform: translateX(5px); }
+    }
+
+    .vault-toggle-vis {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--mauve);
+      font-size: 1rem;
+      padding: 4px;
+    }
+
+    .vault-error {
+      font-size: 0.82rem;
+      color: #C0546A;
+      min-height: 1.1rem;
+      margin-bottom: 0.75rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .vault-error.show { opacity: 1; }
+
+    .vault-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 50px;
+      background: var(--plum);
+      color: var(--cream);
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      border: none;
+      cursor: pointer;
+      transition: background var(--transition), transform var(--transition);
+      margin-bottom: 1rem;
+    }
+    .vault-btn:hover { background: var(--plum-dark); transform: translateY(-2px); }
+
+    .vault-hint {
+      font-size: 0.78rem;
+      color: var(--mauve);
+      font-style: italic;
+      opacity: 0.7;
+    }
+
+    /* ── Vault content (hidden until unlocked) ── */
+    .vault-content {
+      opacity: 0;
+      transition: opacity 0.8s ease 0.3s;
+      pointer-events: none;
+    }
+    .vault-content.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* ── Grid ── */
+    .vault-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 2rem 5rem;
+    }
+
+    /* ── Media card ── */
+    .vault-card-item {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(242,196,206,0.4);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+
+    .vault-card-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 48px rgba(122,92,127,0.13);
+    }
+
+    /* Media area */
+    .vault-media {
+      position: relative;
+      aspect-ratio: 4/3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .vault-media img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .vault-card-item:hover .vault-media img { transform: scale(1.04); }
+
+    /* Photo placeholder */
+    .vault-photo-ph {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 0.5rem;
+    }
+    .vault-photo-ph .ph-icon  { font-size: 2.5rem; opacity: 0.4; }
+    .vault-photo-ph .ph-label {
+      font-size: 0.68rem; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--mauve); opacity: 0.5;
+    }
+
+    /* Video card type */
+    .vault-card-item.is-video .vault-media {
+      background: linear-gradient(135deg, var(--plum-dark), var(--plum));
+    }
+    .vault-play-icon {
+      position: absolute;
+      width: 54px; height: 54px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(8px);
+      border: 2px solid rgba(255,255,255,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; color: white;
+      transition: transform var(--transition), background var(--transition);
+      z-index: 1;
+    }
+    .vault-card-item:hover .vault-play-icon {
+      transform: scale(1.12);
+      background: rgba(255,255,255,0.25);
+    }
+
+    /* Unique gradients per video card */
+    .vault-card-item.is-video:nth-child(3n+1) .vault-media { background: linear-gradient(135deg, #2C1A2E, #7A5C7F); }
+    .vault-card-item.is-video:nth-child(3n+2) .vault-media { background: linear-gradient(135deg, #3A1A2A, #C9A0C0); }
+    .vault-card-item.is-video:nth-child(3n)   .vault-media { background: linear-gradient(135deg, #1A2A3A, #7A9CC9); }
+
+    /* Type badge */
+    .vault-type-badge {
+      position: absolute;
+      top: 10px; left: 10px;
+      background: rgba(44,26,46,0.6);
+      backdrop-filter: blur(4px);
+      color: white;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 20px;
+      z-index: 2;
+    }
+
+    /* Card info */
+    .vault-info {
+      padding: 1rem 1.25rem 1.25rem;
+    }
+    .vault-info-title {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--plum-dark);
+      margin-bottom: 0.25rem;
+    }
+    .vault-info-caption {
+      font-size: 0.82rem;
+      color: var(--plum);
+      font-style: italic;
+      line-height: 1.5;
+      margin-bottom: 0.4rem;
+    }
+    .vault-info-date {
+      font-size: 0.72rem;
+      color: var(--mauve);
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Lightbox (photos) ── */
+    .vault-lightbox {
+      position: fixed; inset: 0;
+      background: rgba(20,10,22,0.97);
+      z-index: 3000; display: none;
+      align-items: center; justify-content: center;
+      padding: 2rem; flex-direction: column; gap: 1.25rem;
+    }
+    .vault-lightbox.open { display: flex; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+    .vlb-inner { max-width: 860px; width: 100%; }
+
+    .vlb-img-wrap {
+      aspect-ratio: 4/3;
+      border-radius: var(--radius-lg);
+      overflow: hidden; background: rgba(255,255,255,0.04);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.25rem;
+    }
+    .vlb-img-wrap img { width:100%; height:100%; object-fit:cover; }
+
+    .vlb-placeholder {
+      width:100%; height:100%;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:1rem;
+      color: rgba(242,196,206,0.3); font-size:5rem;
+    }
+
+    .vlb-caption { text-align:center; color: var(--cream); }
+    .vlb-caption .cap-title { font-family:var(--font-display); font-size:1.2rem; font-style:italic; margin-bottom:0.25rem; }
+    .vlb-caption .cap-text  { font-size:0.88rem; opacity:0.6; }
+    .vlb-caption .cap-date  { font-size:0.78rem; color:var(--gold); margin-top:0.2rem; }
+
+    .vlb-close {
+      position:fixed; top:1.5rem; right:1.5rem;
+      background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2);
+      color:white; width:44px; height:44px; border-radius:50%;
+      font-size:1.1rem; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      transition:var(--transition); z-index:10;
+    }
+    .vlb-close:hover { background:rgba(255,255,255,0.2); }
+
+    .vlb-nav { display:flex; align-items:center; justify-content:center; gap:1rem; margin-top:0.75rem; }
+    .vlb-btn {
+      padding:9px 22px; border-radius:50px;
+      border:1.5px solid rgba(242,196,206,0.3);
+      background:transparent; color:var(--cream);
+      font-family:var(--font-body); font-size:0.82rem;
+      font-weight:500; cursor:pointer; transition:var(--transition);
+    }
+    .vlb-btn:hover { background:rgba(255,255,255,0.1); }
+
+    @media (max-width: 768px) {
+      .vault-grid { grid-template-columns: 1fr 1fr; padding: 0 1.25rem 3rem; gap: 1rem; }
+    }
+    @media (max-width: 480px) {
+      .vault-grid { grid-template-columns: 1fr; }
+      .vault-card { padding: 2.5rem 1.75rem; }
+    }
+  </style>
+</head>
+<body class="private-page">
+  <div class="petal-container"></div>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">A <span>&</span> A</a>
+    <ul class="nav-links">
+      <li><a href="index.html"    data-i18n="nav.home">Home</a></li>
+      <li><a href="timeline.html" data-i18n="nav.timeline">Timeline</a></li>
+      <li><a href="../../Downloads/gallery.html" data-i18n="nav.gallery">Gallery</a></li>
+      <li><a href="videos.html"   data-i18n="nav.videos">Videos</a></li>
+      <li><a href="story.html"    data-i18n="nav.story">Our Story</a></li>
+      <li><a href="trips.html"    data-i18n="nav.trips">Trips</a></li>
+      <li><a href="magic.html"    data-i18n="nav.magic">Magic</a></li>
+      <li><a href="private.html"  data-i18n="nav.private">Private</a></li>
+    </ul>
+    <button class="lang-toggle"><span class="flag">🌸</span><span class="lang-label">RU</span></button>
+    <button class="hamburger"><span></span><span></span><span></span></button>
+  </nav>
+  <div class="nav-drawer">
+    <a href="index.html"    data-i18n="nav.home">Home</a>
+    <a href="timeline.html" data-i18n="nav.timeline">Timeline</a>
+    <a href="../../Downloads/gallery.html" data-i18n="nav.gallery">Gallery</a>
+    <a href="videos.html"   data-i18n="nav.videos">Videos</a>
+    <a href="story.html"    data-i18n="nav.story">Our Story</a>
+    <a href="trips.html"    data-i18n="nav.trips">Trips</a>
+    <a href="magic.html"    data-i18n="nav.magic">Magic</a>
+    <a href="private.html"  data-i18n="nav.private">Private</a>
+    <button class="lang-toggle" style="align-self:flex-start"><span class="flag">🌸</span><span class="lang-label">RU</span></button>
+  </div>
+
+  <!-- ── Vault Lock Overlay ── -->
+  <div class="vault-overlay" id="vault-overlay">
+    <div class="vault-card">
+      <div class="vault-lock" id="vault-lock">🔒</div>
+      <div class="vault-title" data-i18n="vault.title">Private vault</div>
+      <div class="vault-subtitle" data-i18n="vault.subtitle">
+        Something only we can enjoy.
+      </div>
+
+      <div class="vault-input-wrap">
+        <input
+          type="password"
+          class="vault-input"
+          id="vault-input"
+          data-i18n-placeholder="vault.placeholder"
+          placeholder="enter the secret..."
+          autocomplete="off"
+        />
+        <button class="vault-toggle-vis" id="vault-vis">👁</button>
+      </div>
+
+      <div class="vault-error" id="vault-error" data-i18n="vault.error">
+        That's not it, my love
+      </div>
+
+      <button class="vault-btn" id="vault-btn" data-i18n="vault.btn">
+        Unlock ✦
+      </button>
+
+
+    </div>
+  </div>
+
+  <!-- ── Vault content ── -->
+  <div class="vault-content" id="vault-content">
+
+    <div class="private-hero container-sm">
+      <span class="section-label fade-in" data-i18n="vault.label">Just for us</span>
+      <h1 class="section-title fade-in delay-1" data-i18n="vault.heading">Our private world</h1>
+      <p class="section-subtitle fade-in delay-2" style="margin:0 auto" data-i18n="vault.desc">
+        The moments too precious to share with anyone else.
+      </p>
+    </div>
+
+    <!-- Grid -->
+    <div class="vault-grid" id="vault-grid"></div>
+
+  </div>
+
+  <!-- ── Photo lightbox ── -->
+  <div class="vault-lightbox" id="vault-lightbox">
+    <button class="vlb-close" id="vlb-close">✕</button>
+    <div class="vlb-inner">
+      <div class="vlb-img-wrap" id="vlb-img-wrap"></div>
+      <div class="vlb-caption"  id="vlb-caption"></div>
+      <div class="vlb-nav">
+        <button class="vlb-btn" id="vlb-prev" data-i18n="gallery.prev">← Prev</button>
+        <button class="vlb-btn" id="vlb-next" data-i18n="gallery.next">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-logo">A <span>&</span> A</div>
+      <p data-i18n="footer.tagline">Made with love, for you.</p>
+      <p data-i18n="footer.copy">© 2025 · Always yours</p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script>
+    /* ── Vault translations ── */
+    const vaultEn = {
+      'vault.title':      'Private vault',
+      'vault.subtitle':   'Something only we can enjoy.',
+      'vault.placeholder':'enter the secret...',
+      'vault.error':      "That's not it, my love",
+      'vault.btn':        'Unlock ✦',
+
+      'vault.label':      'Just for us',
+      'vault.heading':    'Our private world',
+      'vault.desc':       'Something only we can enjoy.',
+    };
+    const vaultRu = {
+      'vault.title':      'Личное хранилище',
+      'vault.subtitle':   'То, чем можем наслаждаться только мы.',
+      'vault.placeholder':'введи секрет...',
+      'vault.error':      'Это не то, моя любовь',
+      'vault.btn':        'Открыть ✦',
+
+      'vault.label':      'Только для нас',
+      'vault.heading':    'Наш личный мир',
+      'vault.desc':       'То, чем можем наслаждаться только мы.',
+    };
+    Object.assign(translations.en, vaultEn);
+    Object.assign(translations.ru, vaultRu);
+    applyTranslations();
+
+    /* ── Vault media data ──
+       type: 'photo' or 'video'
+       src:  '' = placeholder, or 'images/private-1.jpg' / 'videos/private-1.mp4'
+    ── */
+    const vaultMedia = [
+      { type:'photo', src:'', title:'A precious moment',        titleRu:'Драгоценный момент',      date:'2025', caption:'Just for us.',                        captionRu:'Только для нас.' },
+      { type:'video', src:'', title:'A memory in motion',       titleRu:'Воспоминание в движении', date:'2025', caption:'Some moments need to be seen.',        captionRu:'Некоторые моменты нужно видеть.' },
+      { type:'photo', src:'', title:'Our secret',               titleRu:'Наш секрет',              date:'2025', caption:'Nobody sees this but us.',             captionRu:'Никто не видит этого, кроме нас.' },
+      { type:'video', src:'', title:'A quiet evening',          titleRu:'Тихий вечер',             date:'2025', caption:'My favourite kind of night.',           captionRu:'Мой любимый вид вечера.' },
+      { type:'photo', src:'', title:'Close to you',             titleRu:'Рядом с тобой',           date:'2025', caption:'This is my favourite place.',           captionRu:'Это моё любимое место.' },
+      { type:'video', src:'', title:'Just us',                  titleRu:'Только мы',               date:'2026', caption:'The world outside can wait.',           captionRu:'Внешний мир подождёт.' },
+      { type:'photo', src:'', title:'A stolen glance',          titleRu:'Украденный взгляд',       date:'2026', caption:'I could look at you forever.',          captionRu:'Я мог бы смотреть на тебя вечно.' },
+      { type:'video', src:'', title:'Laughing again',           titleRu:'Снова смеёмся',           date:'2026', caption:'Your laugh is everything.',             captionRu:'Твой смех — это всё.' },
+      { type:'photo', src:'', title:'Golden light',             titleRu:'Золотой свет',            date:'2026', caption:'The light knew what it was doing.',      captionRu:'Свет знал, что делал.' },
+      { type:'video', src:'', title:'That one moment',          titleRu:'Тот самый момент',        date:'2026', caption:'I will remember this forever.',          captionRu:'Я буду помнить это вечно.' },
+      { type:'photo', src:'', title:'My whole world',           titleRu:'Весь мой мир',            date:'2026', caption:'Everything I need.',                    captionRu:'Всё, что мне нужно.' },
+      { type:'video', src:'', title:'Pure happiness',           titleRu:'Чистое счастье',          date:'2026', caption:'This is what it feels like.',            captionRu:'Вот как это ощущается.' },
+      { type:'photo', src:'', title:'Only you',                 titleRu:'Только ты',               date:'2026', caption:'Always you.',                           captionRu:'Всегда ты.' },
+      { type:'video', src:'', title:'Our little world',         titleRu:'Наш маленький мир',       date:'2026', caption:'Safe and warm with you.',               captionRu:'Безопасно и тепло с тобой.' },
+      { type:'photo', src:'', title:'A soft morning',           titleRu:'Мягкое утро',             date:'2026', caption:'My favourite way to wake up.',          captionRu:'Мой любимый способ проснуться.' },
+      { type:'video', src:'', title:'Holding on',               titleRu:'Держась вместе',          date:'2026', caption:'Never letting go.',                     captionRu:'Никогда не отпуская.' },
+      { type:'photo', src:'', title:'Us forever',               titleRu:'Мы навсегда',             date:'2026', caption:'This is infinite.',                     captionRu:'Это бесконечно.' },
+      { type:'video', src:'', title:'The best feeling',         titleRu:'Лучшее ощущение',         date:'2026', caption:'I never want this to end.',              captionRu:'Я не хочу, чтобы это заканчивалось.' },
+      { type:'photo', src:'', title:'A perfect still',          titleRu:'Идеальный кадр',          date:'2026', caption:'Frame-worthy, always.',                 captionRu:'Достойно рамки, всегда.' },
+      { type:'video', src:'', title:'Always and forever',       titleRu:'Всегда и навсегда',       date:'2026', caption:'My favourite person, always.',           captionRu:'Мой любимый человек, всегда.' },
+    ];
+
+    /* ── Vault password ── */
+    const VAULT_KEY  = 'aa_vault';
+    const VAULT_PASS = 'march03';
+
+    function isVaultOpen() {
+      return sessionStorage.getItem(VAULT_KEY) === 'true';
+    }
+
+    function openVault() {
+      sessionStorage.setItem(VAULT_KEY, 'true');
+      const overlay = document.getElementById('vault-overlay');
+      const content = document.getElementById('vault-content');
+      const lock    = document.getElementById('vault-lock');
+
+      lock.textContent = '🔓';
+      lock.classList.add('unlocked');
+
+      setTimeout(() => {
+        overlay.classList.add('unlocking');
+        setTimeout(() => {
+          overlay.style.display = 'none';
+          content.classList.add('visible');
+          buildGrid();
+        }, 600);
+      }, 400);
+    }
+
+    /* ── Build grid ── */
+    function getLang() { return localStorage.getItem('lang') || 'en'; }
+
+    function buildGrid() {
+      const grid = document.getElementById('vault-grid');
+      grid.innerHTML = '';
+      const lang = getLang();
+
+      vaultMedia.forEach((item, i) => {
+        const card = document.createElement('div');
+        card.className = 'vault-card-item fade-in' + (item.type === 'video' ? ' is-video' : '');
+        card.style.transitionDelay = (i % 6 * 0.07) + 's';
+
+        const title   = lang === 'ru' ? item.titleRu   : item.title;
+        const caption = lang === 'ru' ? item.captionRu : item.caption;
+        const typeLabel = item.type === 'video'
+          ? (lang === 'ru' ? 'Видео' : 'Video')
+          : (lang === 'ru' ? 'Фото'  : 'Photo');
+
+        let mediaHtml = '';
+        if (item.type === 'photo') {
+          mediaHtml = item.src
+            ? `<img src="${item.src}" alt="${title}" />`
+            : `<div class="vault-photo-ph">
+                 <span class="ph-icon">🌸</span>
+                 <span class="ph-label">${lang === 'ru' ? 'фото скоро' : 'photo coming'}</span>
+               </div>`;
+        } else {
+          mediaHtml = `<div class="vault-play-icon">▶</div>`;
+        }
+
+        card.innerHTML = `
+          <div class="vault-media">
+            <span class="vault-type-badge">${typeLabel}</span>
+            ${mediaHtml}
+          </div>
+          <div class="vault-info">
+            <div class="vault-info-title">${title}</div>
+            <div class="vault-info-caption">${caption}</div>
+            <div class="vault-info-date">${localizeDate(item.date)}</div>
+          </div>`;
+
+        card.addEventListener('click', () => {
+          if (item.type === 'photo') openPhotoLightbox(i);
+          else openVideoLightbox(item, title, caption);
+        });
+
+        grid.appendChild(card);
+      });
+
+      document.querySelectorAll('.fade-in:not(.visible)').forEach(el => observer.observe(el));
+    }
+
+    /* ── Photo lightbox ── */
+    let currentPhoto = 0;
+    const photoItems = () => vaultMedia.filter(m => m.type === 'photo');
+
+    function openPhotoLightbox(mediaIndex) {
+      const photos = photoItems();
+      currentPhoto = photos.findIndex((_, i) => {
+        let pi = 0;
+        return vaultMedia.findIndex(m => m.type === 'photo' && pi++ === i) === mediaIndex;
+      });
+      currentPhoto = vaultMedia.slice(0, mediaIndex + 1).filter(m => m.type === 'photo').length - 1;
+      updatePhotoLightbox();
+      document.getElementById('vault-lightbox').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function updatePhotoLightbox() {
+      const photos = photoItems();
+      const item   = photos[currentPhoto];
+      if (!item) return;
+      const lang    = getLang();
+      const title   = lang === 'ru' ? item.titleRu   : item.title;
+      const caption = lang === 'ru' ? item.captionRu : item.caption;
+
+      document.getElementById('vlb-img-wrap').innerHTML = item.src
+        ? `<img src="${item.src}" alt="${title}" />`
+        : `<div class="vlb-placeholder">🌸</div>`;
+
+      document.getElementById('vlb-caption').innerHTML = `
+        <div class="cap-title">${title}</div>
+        <div class="cap-text">${caption}</div>
+        <div class="cap-date">${localizeDate(item.date)}</div>`;
+    }
+
+    function closePhotoLightbox() {
+      document.getElementById('vault-lightbox').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('vlb-close').addEventListener('click', closePhotoLightbox);
+    document.getElementById('vlb-prev').addEventListener('click', () => {
+      const photos = photoItems();
+      currentPhoto = (currentPhoto - 1 + photos.length) % photos.length;
+      updatePhotoLightbox();
+    });
+    document.getElementById('vlb-next').addEventListener('click', () => {
+      currentPhoto = (currentPhoto + 1) % photoItems().length;
+      updatePhotoLightbox();
+    });
+    document.getElementById('vault-lightbox').addEventListener('click', e => {
+      if (e.target === document.getElementById('vault-lightbox')) closePhotoLightbox();
+    });
+
+    /* ── Video lightbox (reuse vault-lightbox with video tag) ── */
+    function openVideoLightbox(item, title, caption) {
+      const lb   = document.getElementById('vault-lightbox');
+      const wrap = document.getElementById('vlb-img-wrap');
+      const cap  = document.getElementById('vlb-caption');
+
+      wrap.innerHTML = item.src
+        ? `<video controls autoplay style="width:100%;height:100%;object-fit:contain"><source src="${item.src}" type="video/mp4"></video>`
+        : `<div class="vlb-placeholder">🎬</div>`;
+
+      cap.innerHTML = `
+        <div class="cap-title">${title}</div>
+        <div class="cap-text">${caption}</div>
+        <div class="cap-date">${localizeDate(item.date)}</div>`;
+
+      lb.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    /* ── Password logic ── */
+    const vaultInput  = document.getElementById('vault-input');
+    const vaultError  = document.getElementById('vault-error');
+    const vaultBtn    = document.getElementById('vault-btn');
+    const vaultVis    = document.getElementById('vault-vis');
+
+    vaultVis.addEventListener('click', () => {
+      const hidden = vaultInput.type === 'password';
+      vaultInput.type = hidden ? 'text' : 'password';
+      vaultVis.textContent = hidden ? '🙈' : '👁';
+    });
+
+    function tryUnlock() {
+      const val = vaultInput.value.trim().toLowerCase();
+      if (val === VAULT_PASS) {
+        openVault();
+      } else {
+        vaultInput.classList.add('error');
+        vaultError.classList.add('show');
+        setTimeout(() => vaultInput.classList.remove('error'), 500);
+        vaultInput.value = '';
+        vaultInput.focus();
+      }
+    }
+
+    vaultBtn.addEventListener('click', tryUnlock);
+    vaultInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') tryUnlock();
+      vaultError.classList.remove('show');
+    });
+
+    /* ── Auto-open if already unlocked this session ── */
+    if (isVaultOpen()) {
+      document.getElementById('vault-overlay').style.display = 'none';
+      document.getElementById('vault-content').classList.add('visible');
+      buildGrid();
+    }
+
+    // Rebuild grid on language toggle
+    const _origToggleVault = toggleLanguage;
+    toggleLanguage = function() {
+      _origToggleVault();
+      if (isVaultOpen()) buildGrid();
+    };
+
+    /* ── Keyboard shortcuts ── */
+    document.addEventListener('keydown', e => {
+      const lb = document.getElementById('vault-lightbox');
+      if (!lb.classList.contains('open')) return;
+      if (e.key === 'Escape') closePhotoLightbox();
+    });
+
+    /* ── Scroll observer ── */
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+  </script>
+</body>
+</html>

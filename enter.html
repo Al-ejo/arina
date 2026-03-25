@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A & A ✦ Enter</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: var(--cream);
+    }
+
+    /* Orb backgrounds */
+    .enter-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(90px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .enter-orb-1 {
+      width: 500px; height: 500px;
+      background: var(--blush);
+      top: -150px; right: -150px;
+      opacity: 0.5;
+      animation: orb-drift 14s ease-in-out infinite alternate;
+    }
+    .enter-orb-2 {
+      width: 400px; height: 400px;
+      background: var(--mauve);
+      bottom: -100px; left: -100px;
+      opacity: 0.25;
+      animation: orb-drift 18s ease-in-out infinite alternate-reverse;
+    }
+    .enter-orb-3 {
+      width: 250px; height: 250px;
+      background: var(--gold-light);
+      top: 50%; left: 30%;
+      opacity: 0.2;
+      animation: orb-drift 10s ease-in-out infinite alternate;
+    }
+    @keyframes orb-drift {
+      from { transform: translate(0,0) scale(1); }
+      to   { transform: translate(30px,20px) scale(1.1); }
+    }
+
+    /* Card */
+    .enter-card {
+      position: relative;
+      z-index: 1;
+      background: rgba(255,255,255,0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(242,196,206,0.6);
+      border-radius: var(--radius-xl);
+      padding: 3.5rem 3rem;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      box-shadow: 0 24px 64px rgba(122,92,127,0.1);
+      animation: card-in 0.8s cubic-bezier(0.4,0,0.2,1) forwards;
+    }
+
+    @keyframes card-in {
+      from { opacity: 0; transform: translateY(30px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Logo */
+    .enter-logo {
+      font-family: var(--font-display);
+      font-size: 2.8rem;
+      font-weight: 700;
+      font-style: italic;
+      color: var(--plum-dark);
+      margin-bottom: 0.25rem;
+      letter-spacing: -0.02em;
+    }
+    .enter-logo span { color: var(--mauve); }
+
+    /* Divider */
+    .enter-divider {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 1.25rem 0;
+    }
+    .enter-divider::before,
+    .enter-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--blush), transparent);
+    }
+    .enter-divider span {
+      color: var(--mauve);
+      font-size: 1rem;
+    }
+
+    /* Tagline */
+    .enter-tagline {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 1.1rem;
+      color: var(--plum);
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+
+    /* Input group */
+    .input-group {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+
+    .enter-input {
+      width: 100%;
+      padding: 14px 50px 14px 20px;
+      border: 1.5px solid rgba(242,196,206,0.8);
+      border-radius: 50px;
+      background: rgba(255,255,255,0.9);
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      color: var(--plum-dark);
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      text-align: center;
+      letter-spacing: 0.04em;
+    }
+
+    .enter-input::placeholder {
+      color: var(--mauve);
+      opacity: 0.7;
+    }
+
+    .enter-input:focus {
+      border-color: var(--mauve);
+      box-shadow: 0 0 0 4px rgba(201,160,192,0.15);
+    }
+
+    .enter-input.error {
+      border-color: #E87B8B;
+      box-shadow: 0 0 0 4px rgba(232,123,139,0.12);
+      animation: shake 0.4s ease;
+    }
+
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%      { transform: translateX(-8px); }
+      40%      { transform: translateX(8px); }
+      60%      { transform: translateX(-5px); }
+      80%      { transform: translateX(5px); }
+    }
+
+    /* Show/hide password toggle */
+    .toggle-visibility {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--mauve);
+      font-size: 1rem;
+      padding: 4px;
+      transition: color var(--transition);
+    }
+    .toggle-visibility:hover { color: var(--plum); }
+
+    /* Error message */
+    .enter-error {
+      font-size: 0.85rem;
+      color: #C0546A;
+      min-height: 1.2rem;
+      margin-bottom: 0.75rem;
+      transition: opacity 0.3s;
+      opacity: 0;
+    }
+    .enter-error.visible { opacity: 1; }
+
+    /* Enter button */
+    .enter-btn {
+      width: 100%;
+      padding: 15px;
+      border-radius: 50px;
+      background: var(--plum);
+      color: var(--cream);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      border: none;
+      cursor: pointer;
+      transition: background var(--transition), transform var(--transition);
+      margin-bottom: 1.25rem;
+    }
+    .enter-btn:hover {
+      background: var(--plum-dark);
+      transform: translateY(-2px);
+    }
+    .enter-btn:active { transform: scale(0.98); }
+
+    /* Hint */
+    .enter-hint {
+      font-size: 0.8rem;
+      color: var(--mauve);
+      opacity: 0.8;
+      font-style: italic;
+    }
+
+    /* Lang toggle on enter page */
+    .enter-lang {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      z-index: 10;
+    }
+
+    /* Full screen fade overlay on success */
+    .success-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--blush-light);
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.8s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .success-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .success-overlay-text {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-style: italic;
+      color: var(--plum);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.5s ease 0.3s, transform 0.5s ease 0.3s;
+    }
+    .success-overlay.active .success-overlay-text {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 480px) {
+      .enter-card {
+        margin: 1rem;
+        padding: 2.5rem 1.75rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="petal-container"></div>
+
+  <!-- Orbs -->
+  <div class="enter-orb enter-orb-1"></div>
+  <div class="enter-orb enter-orb-2"></div>
+  <div class="enter-orb enter-orb-3"></div>
+
+  <!-- Language toggle -->
+  <div class="enter-lang">
+    <button class="lang-toggle" aria-label="Toggle language">
+      <span class="flag">🌸</span>
+      <span class="lang-label">RU</span>
+    </button>
+  </div>
+
+  <!-- Entry card -->
+  <div class="enter-card">
+    <div class="enter-logo">A <span>&</span> A</div>
+
+    <div class="enter-divider"><span>✦</span></div>
+
+    <p class="enter-tagline" data-i18n="enter.tagline">
+      this place was made for you
+    </p>
+
+    <div class="input-group">
+      <input
+        type="password"
+        class="enter-input"
+        id="password-input"
+        data-i18n-placeholder="enter.placeholder"
+        placeholder="enter the secret..."
+        autocomplete="off"
+      />
+      <button class="toggle-visibility" id="toggle-vis" aria-label="Show password">👁</button>
+    </div>
+
+    <div class="enter-error" id="enter-error" data-i18n="enter.error">
+      Hmm, try again my love
+    </div>
+
+    <button class="enter-btn" id="enter-btn" data-i18n="enter.btn">
+      Enter ✦
+    </button>
+
+    <p class="enter-hint" data-i18n="enter.hint">
+      hint: think about what today is 🌸
+    </p>
+  </div>
+
+  <!-- Success overlay -->
+  <div class="success-overlay" id="success-overlay">
+    <div class="success-overlay-text" id="success-text">✦</div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script>
+    const input     = document.getElementById('password-input');
+    const errorEl   = document.getElementById('enter-error');
+    const enterBtn  = document.getElementById('enter-btn');
+    const toggleVis = document.getElementById('toggle-vis');
+    const overlay   = document.getElementById('success-overlay');
+
+    // Show/hide password
+    toggleVis.addEventListener('click', () => {
+      const isHidden = input.type === 'password';
+      input.type = isHidden ? 'text' : 'password';
+      toggleVis.textContent = isHidden ? '🙈' : '👁';
+    });
+
+    // Attempt login
+    function tryEnter() {
+      const val = input.value;
+      if (attemptLogin(val)) {
+        // Show success overlay then login (which handles redirect)
+        overlay.classList.add('active');
+        setTimeout(() => {
+          login();
+        }, 1200);
+      } else {
+        input.classList.add('error');
+        errorEl.classList.add('visible');
+        setTimeout(() => input.classList.remove('error'), 500);
+        input.value = '';
+        input.focus();
+      }
+    }
+
+    enterBtn.addEventListener('click', tryEnter);
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') tryEnter();
+      errorEl.classList.remove('visible');
+    });
+  </script>
+</body>
+</html>

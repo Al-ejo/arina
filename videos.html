@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A & A — Videos</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .videos-hero {
+      padding-top: calc(var(--nav-height) + 4rem);
+      padding-bottom: 3rem;
+      text-align: center;
+    }
+    .videos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem 5rem;
+    }
+    .video-card {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(242,196,206,0.5);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .video-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 50px rgba(122,92,127,0.14);
+    }
+    .video-thumb {
+      position: relative;
+      aspect-ratio: 16/9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .video-card:nth-child(3n+1) .video-thumb { background: linear-gradient(135deg, #2C1A2E, #7A5C7F); }
+    .video-card:nth-child(3n+2) .video-thumb { background: linear-gradient(135deg, #4A2040, #C9A0C0); }
+    .video-card:nth-child(3n)   .video-thumb { background: linear-gradient(135deg, #3A2A1A, #D4AF6A); }
+    .play-btn {
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(8px);
+      border: 2px solid rgba(255,255,255,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      transition: transform var(--transition), background var(--transition);
+      color: white;
+    }
+    .video-card:hover .play-btn { transform: scale(1.12); background: rgba(255,255,255,0.25); }
+    .video-duration {
+      position: absolute; bottom: 10px; right: 12px;
+      font-size: 0.75rem; color: white;
+      background: rgba(0,0,0,0.5); padding: 2px 8px;
+      border-radius: 20px; font-weight: 500; letter-spacing: 0.04em;
+    }
+    .video-body { padding: 1rem 1.25rem 1.25rem; }
+    .video-title { font-family: var(--font-display); font-size: 1rem; font-weight: 600; color: var(--plum-dark); margin-bottom: 0.35rem; }
+    .video-caption { font-size: 0.85rem; color: var(--plum); line-height: 1.5; margin-bottom: 0.5rem; }
+    .video-date { font-size: 0.75rem; color: var(--mauve); letter-spacing: 0.04em; }
+
+    /* Lightbox */
+    .video-lightbox {
+      position: fixed; inset: 0;
+      background: rgba(20,10,22,0.97);
+      z-index: 2000; display: none;
+      align-items: center; justify-content: center;
+      padding: 2rem; flex-direction: column; gap: 1.5rem;
+    }
+    .video-lightbox.open { display: flex; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    .video-lb-inner { max-width: 900px; width: 100%; }
+    .video-player-wrap {
+      position: relative; aspect-ratio: 16/9;
+      background: #000; border-radius: var(--radius-lg);
+      overflow: hidden; margin-bottom: 1.25rem;
+    }
+    .video-player-wrap video { width: 100%; height: 100%; object-fit: contain; }
+    .video-lb-placeholder {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 1rem;
+      background: linear-gradient(135deg, var(--plum-dark), #4A2040);
+      color: rgba(242,196,206,0.4); font-size: 5rem;
+    }
+    .video-lb-placeholder p { font-family: var(--font-display); font-size: 0.9rem; font-style: italic; color: rgba(242,196,206,0.4); }
+    .video-lb-caption { text-align: center; color: var(--cream); }
+    .video-lb-caption .caption-title { font-family: var(--font-display); font-size: 1.3rem; font-style: italic; margin-bottom: 0.3rem; }
+    .video-lb-caption .caption-text { font-size: 0.9rem; opacity: 0.65; }
+    .video-lb-caption .caption-date { font-size: 0.8rem; color: var(--gold); margin-top: 0.25rem; }
+    .video-lb-close {
+      position: fixed; top: 1.5rem; right: 1.5rem;
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+      color: white; width: 44px; height: 44px; border-radius: 50%;
+      font-size: 1.2rem; cursor: pointer; transition: var(--transition);
+      display: flex; align-items: center; justify-content: center; z-index: 10;
+    }
+    .video-lb-close:hover { background: rgba(255,255,255,0.2); }
+    .video-lb-nav { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1rem; }
+    .vlb-btn {
+      padding: 10px 24px; border-radius: 50px;
+      border: 1.5px solid rgba(242,196,206,0.4);
+      background: transparent; color: var(--cream);
+      font-family: var(--font-body); font-size: 0.85rem;
+      font-weight: 500; cursor: pointer; transition: var(--transition);
+    }
+    .vlb-btn:hover { background: rgba(255,255,255,0.1); }
+
+    @media (max-width: 768px) { .videos-grid { grid-template-columns: 1fr 1fr; padding: 0 1.25rem 3rem; gap: 1rem; } }
+    @media (max-width: 480px) { .videos-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="petal-container"></div>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">A <span>&</span> A</a>
+    <ul class="nav-links">
+      <li><a href="index.html"    data-i18n="nav.home">Home</a></li>
+      <li><a href="timeline.html" data-i18n="nav.timeline">Timeline</a></li>
+      <li><a href="../../Downloads/gallery.html" data-i18n="nav.gallery">Gallery</a></li>
+      <li><a href="videos.html"   data-i18n="nav.videos">Videos</a></li>
+      <li><a href="story.html"    data-i18n="nav.story">Our Story</a></li>
+      <li><a href="trips.html"    data-i18n="nav.trips">Trips</a></li>
+      <li><a href="magic.html"    data-i18n="nav.magic">Magic</a></li>
+      <li><a href="../../Downloads/private.html" data-i18n="nav.private">Private</a></li>
+    </ul>
+    <button class="lang-toggle"><span class="flag">🌸</span><span class="lang-label">RU</span></button>
+    <button class="hamburger"><span></span><span></span><span></span></button>
+  </nav>
+  <div class="nav-drawer">
+    <a href="index.html"    data-i18n="nav.home">Home</a>
+    <a href="timeline.html" data-i18n="nav.timeline">Timeline</a>
+    <a href="../../Downloads/gallery.html" data-i18n="nav.gallery">Gallery</a>
+    <a href="videos.html"   data-i18n="nav.videos">Videos</a>
+    <a href="story.html"    data-i18n="nav.story">Our Story</a>
+    <a href="trips.html"    data-i18n="nav.trips">Trips</a>
+    <a href="magic.html"    data-i18n="nav.magic">Magic</a>
+    <a href="../../Downloads/private.html" data-i18n="nav.private">Private</a>
+    <button class="lang-toggle" style="align-self:flex-start"><span class="flag">🌸</span><span class="lang-label">RU</span></button>
+  </div>
+
+  <div class="videos-hero container-sm">
+    <span class="section-label fade-in" data-i18n="videos.label">Our moments</span>
+    <h1 class="section-title fade-in delay-1" data-i18n="videos.title">Video memories</h1>
+    <p class="section-subtitle fade-in delay-2" style="margin:0 auto" data-i18n="videos.subtitle">
+      The moments too beautiful to just be photos — watch our story unfold.
+    </p>
+  </div>
+
+  <div class="videos-grid" id="videos-grid"></div>
+
+  <div class="video-lightbox" id="video-lightbox">
+    <button class="video-lb-close" id="vlb-close">✕</button>
+    <div class="video-lb-inner">
+      <div class="video-player-wrap" id="vlb-player"></div>
+      <div class="video-lb-caption" id="vlb-caption"></div>
+      <div class="video-lb-nav">
+        <button class="vlb-btn" id="vlb-prev" data-i18n="gallery.prev">← Prev</button>
+        <button class="vlb-btn" id="vlb-next" data-i18n="gallery.next">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-logo">A <span>&</span> A</div>
+      <p data-i18n="footer.tagline">Made with love, for you.</p>
+      <p data-i18n="footer.copy">© 2025 · Always yours</p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script>
+    const videos = [
+      { src:'', title:'Our first video',         titleRu:'Наше первое видео',        date:'March 2025',     caption:'The beginning of everything.',               captionRu:'Начало всего.' },
+      { src:'', title:'That perfect evening',    titleRu:'Тот идеальный вечер',      date:'March 2025',     caption:'I never wanted it to end.',                  captionRu:'Я не хотел, чтобы это заканчивалось.' },
+      { src:'', title:'Laughing until it hurts', titleRu:'Смех до слёз',             date:'April 2025',     caption:'Nobody makes me laugh like you do.',         captionRu:'Никто не смешит меня так, как ты.' },
+      { src:'', title:'A little adventure',      titleRu:'Маленькое приключение',    date:'April 2025',     caption:'Every trip with you is the best trip.',      captionRu:'Каждая поездка с тобой — лучшая.' },
+      { src:'', title:'Golden hour magic',       titleRu:'Магия золотого часа',      date:'May 2025',       caption:'The light loved you as much as I do.',       captionRu:'Свет любил тебя так же сильно, как я.' },
+      { src:'', title:'Sunday morning',          titleRu:'Воскресное утро',          date:'May 2025',       caption:'My favorite kind of slow.',                  captionRu:'Мой любимый медленный день.' },
+      { src:'', title:'Dancing together',        titleRu:'Танцуем вместе',           date:'June 2025',      caption:'You are the music and the dance.',           captionRu:'Ты — и музыка, и танец.' },
+      { src:'', title:'Summer vibes',            titleRu:'Летнее настроение',        date:'July 2025',      caption:'Summer will always remind me of you.',      captionRu:'Лето всегда будет напоминать мне о тебе.' },
+      { src:'', title:'Just us, talking',        titleRu:'Просто мы, разговариваем', date:'July 2025',      caption:'I could listen to you forever.',             captionRu:'Я мог бы слушать тебя вечно.' },
+      { src:'', title:'A silly moment',          titleRu:'Смешной момент',           date:'August 2025',    caption:'Never stop being this silly with me.',       captionRu:'Никогда не переставай быть такой смешной со мной.' },
+      { src:'', title:'City walk',               titleRu:'Прогулка по городу',       date:'August 2025',    caption:'Our city, our footsteps.',                   captionRu:'Наш город, наши шаги.' },
+      { src:'', title:'Surprise moment',         titleRu:'Момент сюрприза',          date:'September 2025', caption:'Your reaction made my whole year.',          captionRu:'Твоя реакция сделала мой год.' },
+      { src:'', title:'Autumn evening',          titleRu:'Осенний вечер',            date:'October 2025',   caption:'Warm in every way that matters.',            captionRu:'Тепло во всех смыслах.' },
+      { src:'', title:'Cozy and close',          titleRu:'Уютно и близко',           date:'October 2025',   caption:'Home is wherever you are.',                  captionRu:'Дом там, где ты.' },
+      { src:'', title:'A special day',           titleRu:'Особенный день',           date:'November 2025',  caption:'One of the best days of my life.',           captionRu:'Один из лучших дней в моей жизни.' },
+      { src:'', title:'Nighttime glow',          titleRu:'Ночное сияние',            date:'November 2025',  caption:'You shine brighter than all the lights.',    captionRu:'Ты светишься ярче всех огней.' },
+      { src:'', title:'First snow together',     titleRu:'Первый снег вместе',       date:'December 2025',  caption:'Everything is magical with you.',            captionRu:'Всё волшебно с тобой.' },
+      { src:'', title:'New year countdown',      titleRu:'Обратный отсчёт до НГ',    date:'January 2026',   caption:'Starting every new year with you.',          captionRu:'Начинать каждый новый год с тобой.' },
+      { src:'', title:'Valentine\'s moment',     titleRu:'Момент дня влюблённых',    date:'February 2026',  caption:'Every day is Valentine\'s Day with you.',    captionRu:'Каждый день — День святого Валентина с тобой.' },
+      { src:'', title:'Our anniversary',         titleRu:'Наша годовщина',           date:'March 2026',     caption:'One whole year of the best love.',           captionRu:'Целый год лучшей любви.' },
+    ];
+
+    const grid = document.getElementById('videos-grid');
+    const lightbox = document.getElementById('video-lightbox');
+    const vlbPlayer = document.getElementById('vlb-player');
+    const vlbCaption = document.getElementById('vlb-caption');
+    let currentVideo = 0;
+
+    function getLang() { return localStorage.getItem('lang') || 'en'; }
+
+    function buildGrid() {
+      grid.innerHTML = '';
+      videos.forEach((v, i) => {
+        const card = document.createElement('div');
+        card.className = 'video-card fade-in';
+        card.style.transitionDelay = (i % 6 * 0.08) + 's';
+        const title   = getLang() === 'ru' ? v.titleRu : v.title;
+        const caption = getLang() === 'ru' ? v.captionRu : v.caption;
+        const date    = localizeDate(v.date);
+        card.innerHTML = `
+          <div class="video-thumb">
+            <div class="play-btn">▶</div>
+            <div class="video-duration">0:00</div>
+          </div>
+          <div class="video-body">
+            <div class="video-title">${title}</div>
+            <div class="video-caption">${caption}</div>
+            <div class="video-date">${date}</div>
+          </div>`;
+        card.addEventListener('click', () => openVideo(i));
+        grid.appendChild(card);
+      });
+      document.querySelectorAll('.fade-in:not(.visible)').forEach(el => observer.observe(el));
+    }
+
+    function openVideo(i) {
+      currentVideo = i;
+      updateLightbox();
+      lightbox.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeVideo() {
+      lightbox.classList.remove('open');
+      document.body.style.overflow = '';
+      vlbPlayer.innerHTML = '';
+    }
+
+    function updateLightbox() {
+      const v = videos[currentVideo];
+      const lang = getLang();
+      const title = lang === 'ru' ? v.titleRu : v.title;
+      const caption = lang === 'ru' ? v.captionRu : v.caption;
+      vlbPlayer.innerHTML = v.src
+        ? `<video controls autoplay><source src="${v.src}" type="video/mp4"></video>`
+        : `<div class="video-lb-placeholder">🎬<p>${title}</p></div>`;
+      vlbCaption.innerHTML = `
+        <div class="caption-title">${title}</div>
+        <div class="caption-text">${caption}</div>
+        <div class="caption-date">${localizeDate(v.date)}</div>`;
+    }
+
+    document.getElementById('vlb-close').addEventListener('click', closeVideo);
+    document.getElementById('vlb-prev').addEventListener('click', () => { currentVideo = (currentVideo - 1 + videos.length) % videos.length; updateLightbox(); });
+    document.getElementById('vlb-next').addEventListener('click', () => { currentVideo = (currentVideo + 1) % videos.length; updateLightbox(); });
+    lightbox.addEventListener('click', e => { if (e.target === lightbox) closeVideo(); });
+    document.addEventListener('keydown', e => {
+      if (!lightbox.classList.contains('open')) return;
+      if (e.key === 'Escape') closeVideo();
+      if (e.key === 'ArrowLeft')  { currentVideo = (currentVideo - 1 + videos.length) % videos.length; updateLightbox(); }
+      if (e.key === 'ArrowRight') { currentVideo = (currentVideo + 1) % videos.length; updateLightbox(); }
+    });
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+
+    buildGrid();
+
+    // Rebuild grid when language toggles so dates and captions update
+    const _origToggleVideos = toggleLanguage;
+    toggleLanguage = function() { _origToggleVideos(); buildGrid(); };
+  </script>
+</body>
+</html>

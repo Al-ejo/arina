@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arina & I — Our Story</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/home.css" />
+</head>
+<body>
+
+  <!-- Floating petals background -->
+  <div class="petal-container"></div>
+
+  <!-- Seasonal effects canvas -->
+  <canvas id="seasonal-canvas" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;"></canvas>
+
+  <!-- ── Navigation ── -->
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">A <span>&</span> A</a>
+
+    <ul class="nav-links">
+      <li><a href="index.html"    data-i18n="nav.home">Home</a></li>
+      <li><a href="timeline.html" data-i18n="nav.timeline">Timeline</a></li>
+      <li><a href="gallery.html"  data-i18n="nav.gallery">Gallery</a></li>
+      <li><a href="videos.html"   data-i18n="nav.videos">Videos</a></li>
+      <li><a href="story.html"    data-i18n="nav.story">Our Story</a></li>
+      <li><a href="trips.html"    data-i18n="nav.trips">Trips</a></li>
+      <li><a href="magic.html"    data-i18n="nav.magic">Magic</a></li>
+      <li><a href="private.html"  data-i18n="nav.private">Private</a></li>
+    </ul>
+
+    <button class="lang-toggle" aria-label="Toggle language">
+      <span class="flag">🌸</span>
+      <span class="lang-label">RU</span>
+    </button>
+
+    <button class="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- Mobile drawer -->
+  <div class="nav-drawer">
+    <a href="index.html"    data-i18n="nav.home">Home</a>
+    <a href="timeline.html" data-i18n="nav.timeline">Timeline</a>
+    <a href="gallery.html"  data-i18n="nav.gallery">Gallery</a>
+    <a href="videos.html"   data-i18n="nav.videos">Videos</a>
+    <a href="story.html"    data-i18n="nav.story">Our Story</a>
+    <a href="trips.html"    data-i18n="nav.trips">Trips</a>
+    <a href="magic.html"    data-i18n="nav.magic">Magic</a>
+    <a href="private.html"  data-i18n="nav.private">Private</a>
+    <button class="lang-toggle" style="align-self:flex-start;" aria-label="Toggle language">
+      <span class="flag">🌸</span>
+      <span class="lang-label">RU</span>
+    </button>
+  </div>
+
+  <!-- ── Hero Section ── -->
+  <section class="hero">
+    <!-- Starfield canvas replaces orbs -->
+    <canvas id="starfield-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.9"></canvas>
+
+    <!-- Keep soft orb glow underneath -->
+    <div class="hero-bg" style="z-index:0">
+      <div class="hero-orb hero-orb-1" style="opacity:0.2"></div>
+      <div class="hero-orb hero-orb-2" style="opacity:0.1"></div>
+    </div>
+
+    <div class="container hero-content">
+      <div class="hero-text">
+        <span class="section-label fade-in" data-i18n="hero.label">A love story</span>
+
+        <h1 class="hero-title fade-in delay-1">
+          <span data-i18n="hero.title1">Every moment</span><br/>
+          <em class="hero-em" data-i18n="hero.title2">with you</em>
+        </h1>
+
+        <!-- Typewriter subtitle -->
+        <p class="hero-subtitle fade-in delay-2" style="min-height:1.8em">
+          <span id="typewriter-text"></span><span id="typewriter-cursor" style="
+            display:inline-block;width:2px;height:1em;
+            background:var(--mauve);margin-left:2px;
+            vertical-align:middle;
+            animation:blink 0.9s step-end infinite;
+          "></span>
+        </p>
+
+        <div class="hero-actions fade-in delay-3">
+          <a href="story.html" class="btn btn-primary">
+            <span data-i18n="hero.btn1">Explore our story</span>
+            <span>→</span>
+          </a>
+          <a href="gallery.html" class="btn btn-outline">
+            <span data-i18n="hero.btn2">See the gallery</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Days Counter -->
+      <div class="counter-card fade-in delay-4">
+        <div class="counter-inner">
+          <div class="counter-number" id="days-counter">0</div>
+          <div class="counter-label" data-i18n="hero.counter.label">days together</div>
+          <div class="counter-flowers">🌸 ✦ 🌸</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="scroll-hint fade-in delay-5">
+      <div class="scroll-line"></div>
+      <span>scroll</span>
+    </div>
+  </section>
+
+  <!-- ── Weather Widget ── -->
+  <div class="weather-banner fade-in">
+    <div class="container">
+      <div class="weather-inner">
+        <div class="weather-city" id="weather-ny">
+          <div class="weather-icon" id="weather-ny-icon">⏳</div>
+          <div class="weather-info">
+            <div class="weather-city-name" data-i18n="weather.ny">New York</div>
+            <div class="weather-temp" id="weather-ny-temp">—</div>
+            <div class="weather-desc" id="weather-ny-desc">loading...</div>
+          </div>
+        </div>
+        <div class="weather-divider">
+          <span class="weather-tagline" data-i18n="weather.tagline">same sky, different side</span>
+          <span class="weather-heart">🌍</span>
+        </div>
+        <div class="weather-city" id="weather-ko">
+          <div class="weather-icon" id="weather-ko-icon">⏳</div>
+          <div class="weather-info">
+            <div class="weather-city-name" data-i18n="weather.ko">Kolomna</div>
+            <div class="weather-temp" id="weather-ko-temp">—</div>
+            <div class="weather-desc" id="weather-ko-desc">loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Self-Writing Love Quote Banner ── -->
+  <div class="note-banner">
+    <div class="container">
+      <div class="note-inner fade-in">
+        <span class="note-quote">"</span>
+        <p class="note-text" id="quote-text"></p>
+        <span class="note-author" id="quote-author">— loading...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Chapter Cards ── -->
+  <section class="chapters-section">
+    <div class="container">
+      <div class="section-header fade-in">
+        <span class="section-label" data-i18n="home.chapters.label">Our chapters</span>
+        <h2 class="section-title" data-i18n="home.chapters.title">Every page of us</h2>
+        <p class="section-subtitle" data-i18n="home.chapters.subtitle">
+          From our very first moment to every adventure since.
+        </p>
+      </div>
+
+      <div class="chapters-grid">
+
+        <!-- Timeline -->
+        <a href="timeline.html" class="chapter-card chapter-timeline fade-in delay-1">
+          <div class="chapter-icon">⏳</div>
+          <div class="chapter-body">
+            <h3 data-i18n="chapter.timeline">Timeline</h3>
+            <p data-i18n="chapter.timeline.desc">Every milestone, every first, every ordinary day that became extraordinary.</p>
+            <span class="chapter-link" data-i18n="chapter.explore">Explore →</span>
+          </div>
+          <div class="chapter-bg-shape"></div>
+        </a>
+
+        <!-- Gallery -->
+        <a href="gallery.html" class="chapter-card chapter-gallery fade-in delay-2">
+          <div class="chapter-icon">🖼️</div>
+          <div class="chapter-body">
+            <h3 data-i18n="chapter.gallery">Gallery</h3>
+            <p data-i18n="chapter.gallery.desc">A thousand moments captured — slide through our favorite pictures.</p>
+            <span class="chapter-link" data-i18n="chapter.explore">Explore →</span>
+          </div>
+          <div class="chapter-bg-shape"></div>
+        </a>
+
+        <!-- Our Story -->
+        <a href="story.html" class="chapter-card chapter-story fade-in delay-3">
+          <div class="chapter-icon">📖</div>
+          <div class="chapter-body">
+            <h3 data-i18n="chapter.story">Our story</h3>
+            <p data-i18n="chapter.story.desc">The full story of us — how we got here and everything in between.</p>
+            <span class="chapter-link" data-i18n="chapter.explore">Explore →</span>
+          </div>
+          <div class="chapter-bg-shape"></div>
+        </a>
+
+        <!-- Trips -->
+        <a href="trips.html" class="chapter-card chapter-trips fade-in delay-1">
+          <div class="chapter-icon">✈️</div>
+          <div class="chapter-body">
+            <h3 data-i18n="chapter.trips">Trips</h3>
+            <p data-i18n="chapter.trips.desc">Every place we have explored together, mapped and remembered.</p>
+            <span class="chapter-link" data-i18n="chapter.explore">Explore →</span>
+          </div>
+          <div class="chapter-bg-shape"></div>
+        </a>
+
+        <!-- Magic / Harry Potter -->
+        <a href="magic.html" class="chapter-card chapter-magic fade-in delay-2">
+          <div class="chapter-icon">⚡</div>
+          <div class="chapter-body">
+            <h3 data-i18n="chapter.magic">Magic</h3>
+            <p data-i18n="chapter.magic.desc">A special world just for you — Hogwarts, spells, and a little magic.</p>
+            <span class="chapter-link" data-i18n="chapter.explore">Explore →</span>
+          </div>
+          <div class="chapter-bg-shape"></div>
+        </a>
+
+        <!-- Private -->
+        <a href="private.html" class="chapter-card chapter-private fade-in delay-3">
+          <div class="chapter-icon">🔒</div>
+          <div class="chapter-body">
+            <h3 data-i18n="chapter.private">Private</h3>
+            <p data-i18n="chapter.private.desc">Our most private, precious moments — just for us.</p>
+            <span class="chapter-link" data-i18n="chapter.explore">Explore →</span>
+          </div>
+          <div class="chapter-bg-shape"></div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ── -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-logo">A <span>&</span> A</div>
+      <p class="footer-tagline" data-i18n="footer.tagline">Made with love, for you.</p>
+      <p data-i18n="footer.copy">© 2025 · Always yours</p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

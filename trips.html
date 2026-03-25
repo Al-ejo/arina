@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A & A ✦ Trips</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    .trips-hero { padding-top: calc(var(--nav-height) + 4rem); padding-bottom: 3rem; text-align: center; }
+    .map-section { padding: 0 0 5rem; }
+    .map-wrap { position: relative; max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+    #trips-map { width: 100%; height: 500px; border-radius: var(--radius-lg); border: 1px solid rgba(242,196,206,0.5); box-shadow: 0 20px 60px rgba(122,92,127,0.1); }
+    .leaflet-popup-content-wrapper { border-radius: 16px !important; border: 1px solid rgba(242,196,206,0.6); box-shadow: 0 12px 40px rgba(122,92,127,0.15) !important; padding: 0 !important; overflow: hidden; }
+    .leaflet-popup-content { margin: 0 !important; width: 220px !important; }
+    .leaflet-popup-tip { background: #fff !important; }
+    .leaflet-popup-close-button { color: #C9A0C0 !important; font-size: 1.1rem !important; top: 8px !important; right: 8px !important; }
+    .map-popup-inner { padding: 1.25rem; }
+    .map-popup-flag { font-size: 1.5rem; margin-bottom: 0.4rem; }
+    .map-popup-title { font-family: 'Playfair Display', Georgia, serif; font-size: 1rem; font-weight: 700; color: #2C1A2E; margin-bottom: 0.2rem; }
+    .map-popup-date { font-size: 0.72rem; color: #C9A0C0; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.5rem; }
+    .map-popup-caption { font-size: 0.82rem; color: #7A5C7F; line-height: 1.5; font-style: italic; }
+    .map-legend { display: flex; align-items: center; justify-content: center; gap: 2rem; margin-top: 1.5rem; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: #7A5C7F; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .cards-section { background: #F5E8DC; padding: 5rem 0; }
+    .cards-header { text-align: center; margin-bottom: 3.5rem; }
+    .trips-grid { display: flex; flex-direction: column; gap: 3rem; max-width: 900px; margin: 0 auto; padding: 0 2rem; }
+    .trip-card { background: #fff; border-radius: 24px; border: 1px solid rgba(242,196,206,0.5); overflow: hidden; transition: box-shadow 0.3s ease; }
+    .trip-card:hover { box-shadow: 0 20px 50px rgba(122,92,127,0.1); }
+    .trip-main-photo { position: relative; aspect-ratio: 16/9; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #FAE8EC; cursor: pointer; }
+    .trip-main-photo img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+    .trip-main-photo:hover img { transform: scale(1.03); }
+    .trip-main-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; }
+    .trip-main-placeholder .ph-icon { font-size: 3.5rem; opacity: 0.5; }
+    .trip-main-placeholder .ph-label { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: #C9A0C0; opacity: 0.6; }
+    .trip-istanbul .trip-main-photo { background: linear-gradient(135deg, #F5D5C0, #E8A87C); }
+    .trip-tbilisi  .trip-main-photo { background: linear-gradient(135deg, #E8D5A0, #C9A96E); }
+    .trip-kolomna  .trip-main-photo { background: linear-gradient(135deg, #C0D0E8, #7AA0C9); }
+    .trip-thumbs { display: flex; gap: 6px; overflow-x: auto; padding: 8px 12px; background: #FDF6F0; border-bottom: 1px solid rgba(242,196,206,0.3); scrollbar-width: thin; scrollbar-color: #F2C4CE transparent; -webkit-overflow-scrolling: touch; }
+    .trip-thumbs::-webkit-scrollbar { height: 3px; }
+    .trip-thumbs::-webkit-scrollbar-thumb { background: #F2C4CE; border-radius: 2px; }
+    .trip-thumb { flex: 0 0 72px; height: 72px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: border-color 0.3s ease, transform 0.3s ease; background: #FAE8EC; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; opacity: 0.65; }
+    .trip-thumb:hover { transform: scale(1.05); opacity: 0.9; }
+    .trip-thumb.active { border-color: #7A5C7F; opacity: 1; }
+    .trip-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .trip-body { padding: 1.5rem 1.75rem 1.75rem; }
+    .trip-flag-title { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+    .trip-flag { font-size: 1.6rem; }
+    .trip-title { font-family: 'Playfair Display', Georgia, serif; font-size: 1.3rem; font-weight: 700; color: #2C1A2E; }
+    .trip-meta { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+    .trip-date { font-size: 0.75rem; color: #C9A0C0; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 500; }
+    .trip-country { font-size: 0.75rem; color: #7A5C7F; opacity: 0.5; }
+    .trip-caption { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 1.05rem; color: #7A5C7F; line-height: 1.7; margin-bottom: 1rem; }
+    .trip-tag { display: inline-flex; align-items: center; gap: 6px; background: #FAE8EC; border: 1px solid rgba(242,196,206,0.6); border-radius: 20px; padding: 5px 14px; font-size: 0.75rem; color: #7A5C7F; font-weight: 500; }
+    .trip-card-future { background: rgba(255,255,255,0.5); border: 2px dashed rgba(242,196,206,0.6); border-radius: 24px; padding: 3rem; text-align: center; color: #C9A0C0; display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+    .trip-card-future .future-icon { font-size: 2.5rem; opacity: 0.4; }
+    .trip-card-future .future-title { font-family: 'Playfair Display', Georgia, serif; font-size: 1.1rem; color: #7A5C7F; opacity: 0.5; }
+    .trip-card-future .future-sub { font-size: 0.8rem; opacity: 0.5; font-style: italic; }
+    @media (max-width: 768px) { #trips-map { height: 350px; } .trips-grid { padding: 0 1.25rem; } }
+
+    /* ── Interactive side panel (Feature 4) ── */
+    .trip-panel-overlay {
+      position: fixed; inset: 0;
+      background: rgba(44,26,46,0.5);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 2000; opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+    .trip-panel-overlay.open { opacity: 1; pointer-events: all; }
+
+    .trip-panel {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: 420px; max-width: 92vw;
+      background: #fff;
+      z-index: 2001;
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+      overflow-y: auto;
+      box-shadow: -20px 0 60px rgba(44,26,46,0.15);
+    }
+    .trip-panel.open { transform: translateX(0); }
+
+    .panel-header {
+      position: sticky; top: 0;
+      background: #fff;
+      border-bottom: 1px solid rgba(242,196,206,0.4);
+      padding: 1.25rem 1.5rem;
+      display: flex; align-items: center;
+      justify-content: space-between;
+      z-index: 1;
+    }
+
+    .panel-close {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--blush-light,#FAE8EC);
+      border: none; cursor: pointer; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s ease;
+      color: #7A5C7F;
+    }
+    .panel-close:hover { background: #F2C4CE; }
+
+    .panel-flag-title { display: flex; align-items: center; gap: 0.75rem; }
+    .panel-flag { font-size: 1.6rem; }
+    .panel-title { font-family: 'Playfair Display',Georgia,serif; font-size: 1.2rem; font-weight: 700; color: #2C1A2E; }
+
+    .panel-main-photo {
+      aspect-ratio: 16/9;
+      background: linear-gradient(135deg, #FAE8EC, rgba(201,160,192,0.2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 4rem; overflow: hidden;
+    }
+    .panel-main-photo img { width:100%; height:100%; object-fit:cover; }
+
+    .panel-thumbs {
+      display: flex; gap: 6px;
+      overflow-x: auto; padding: 8px 12px;
+      background: #FDF6F0;
+      border-bottom: 1px solid rgba(242,196,206,0.3);
+      scrollbar-width: thin; scrollbar-color: #F2C4CE transparent;
+    }
+    .panel-thumbs::-webkit-scrollbar { height: 3px; }
+    .panel-thumbs::-webkit-scrollbar-thumb { background: #F2C4CE; border-radius: 2px; }
+
+    .panel-thumb {
+      flex: 0 0 60px; height: 60px;
+      border-radius: 8px; overflow: hidden;
+      cursor: pointer; border: 2px solid transparent;
+      transition: border-color 0.2s, transform 0.2s;
+      background: #FAE8EC; display: flex;
+      align-items: center; justify-content: center;
+      font-size: 1.1rem; opacity: 0.6;
+    }
+    .panel-thumb:hover { transform: scale(1.06); opacity: 0.9; }
+    .panel-thumb.active { border-color: #7A5C7F; opacity: 1; }
+    .panel-thumb img { width:100%; height:100%; object-fit:cover; }
+
+    .panel-body { padding: 1.5rem; }
+    .panel-date { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: #D4AF6A; font-weight: 500; margin-bottom: 0.6rem; }
+    .panel-caption { font-family: 'Cormorant Garamond',Georgia,serif; font-style: italic; font-size: 1.05rem; color: #7A5C7F; line-height: 1.7; margin-bottom: 1rem; }
+    .panel-tag { display: inline-flex; align-items: center; gap: 6px; background: #FAE8EC; border: 1px solid rgba(242,196,206,0.6); border-radius: 20px; padding: 5px 14px; font-size: 0.75rem; color: #7A5C7F; font-weight: 500; }
+
+    .panel-scroll-hint { font-size: 0.78rem; color: #9A7A9A; text-align: center; padding: 1rem; opacity: 0.6; font-style: italic; }
+
+    @media (max-width: 500px) {
+      .trip-panel { width: 100vw; top: auto; height: 85vh; border-radius: 20px 20px 0 0; transform: translateY(100%); }
+      .trip-panel.open { transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="petal-container"></div>
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">A <span>&</span> A</a>
+    <ul class="nav-links">
+      <li><a href="index.html"    data-i18n="nav.home">Home</a></li>
+      <li><a href="timeline.html" data-i18n="nav.timeline">Timeline</a></li>
+      <li><a href="gallery.html"  data-i18n="nav.gallery">Gallery</a></li>
+      <li><a href="videos.html"   data-i18n="nav.videos">Videos</a></li>
+      <li><a href="story.html"    data-i18n="nav.story">Our Story</a></li>
+      <li><a href="trips.html"    data-i18n="nav.trips">Trips</a></li>
+      <li><a href="magic.html"    data-i18n="nav.magic">Magic</a></li>
+      <li><a href="private.html"  data-i18n="nav.private">Private</a></li>
+    </ul>
+    <button class="lang-toggle"><span class="flag">🌸</span><span class="lang-label">RU</span></button>
+    <button class="hamburger"><span></span><span></span><span></span></button>
+  </nav>
+  <div class="nav-drawer">
+    <a href="index.html"    data-i18n="nav.home">Home</a>
+    <a href="timeline.html" data-i18n="nav.timeline">Timeline</a>
+    <a href="gallery.html"  data-i18n="nav.gallery">Gallery</a>
+    <a href="videos.html"   data-i18n="nav.videos">Videos</a>
+    <a href="story.html"    data-i18n="nav.story">Our Story</a>
+    <a href="trips.html"    data-i18n="nav.trips">Trips</a>
+    <a href="magic.html"    data-i18n="nav.magic">Magic</a>
+    <a href="private.html"  data-i18n="nav.private">Private</a>
+    <button class="lang-toggle" style="align-self:flex-start"><span class="flag">🌸</span><span class="lang-label">RU</span></button>
+  </div>
+
+  <div class="trips-hero container-sm">
+    <span class="section-label fade-in" data-i18n="trips.label">Our adventures</span>
+    <h1 class="section-title fade-in delay-1" data-i18n="trips.title">Places we've been</h1>
+    <p class="section-subtitle fade-in delay-2" style="margin:0 auto" data-i18n="trips.subtitle">Every city we've touched together, every place that's part of our story.</p>
+  </div>
+
+  <div class="map-section">
+    <div class="map-wrap">
+      <div id="trips-map" class="fade-in"></div>
+      <div class="map-legend fade-in delay-1">
+        <div class="legend-item"><div class="legend-dot" style="background:#C9622A"></div><span data-i18n="trips.istanbul">Istanbul, Turkey</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#7A5C2E"></div><span data-i18n="trips.tbilisi">Tbilisi, Georgia</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#2E4A7A"></div><span data-i18n="trips.kolomna">Kolomna, Russia</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cards-section">
+    <div class="cards-header container">
+      <span class="section-label fade-in" data-i18n="trips.cards.label">Every destination</span>
+      <h2 class="section-title fade-in delay-1" data-i18n="trips.cards.title">Our travel diary</h2>
+    </div>
+    <div class="trips-grid">
+
+      <!-- ══════════════════════════════════════════
+           ISTANBUL — 8 photo slots
+           To add photos: set data-src="images/istanbul-1.jpg"
+           on each thumb, first thumb updates the main photo.
+           Replace ph-icon placeholder with an <img> tag if needed.
+      ══════════════════════════════════════════ -->
+      <div class="trip-card trip-istanbul fade-in">
+        <div class="trip-main-photo" id="istanbul-main">
+          <div class="trip-main-placeholder">
+            <span class="ph-icon">🕌</span>
+            <span class="ph-label" data-i18n="trips.photo.coming">photo coming</span>
+          </div>
+        </div>
+        <div class="trip-thumbs">
+          <div class="trip-thumb active" data-src="" data-trip="istanbul">🕌</div>
+          <div class="trip-thumb" data-src="" data-trip="istanbul">📸</div>
+          <div class="trip-thumb" data-src="" data-trip="istanbul">📸</div>
+          <div class="trip-thumb" data-src="" data-trip="istanbul">📸</div>
+          <div class="trip-thumb" data-src="" data-trip="istanbul">📸</div>
+          <div class="trip-thumb" data-src="" data-trip="istanbul">📸</div>
+          <div class="trip-thumb" data-src="" data-trip="istanbul">📸</div>
+          <div class="trip-thumb" data-src="" data-trip="istanbul">📸</div>
+        </div>
+        <div class="trip-body">
+          <div class="trip-flag-title"><span class="trip-flag">🇹🇷</span><div class="trip-title" data-i18n="trips.istanbul">Istanbul, Turkey</div></div>
+          <div class="trip-meta"><span class="trip-date" data-i18n="trips.istanbul.date">October 2025</span><span class="trip-country" data-i18n="trips.istanbul.country">Turkey</span></div>
+          <p class="trip-caption" data-i18n="trips.istanbul.caption">Where it all began. The city that introduced us to each other and to something neither of us expected.</p>
+          <div class="trip-tag"><span>🌸</span><span data-i18n="trips.istanbul.tag">Our first meeting</span></div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           TBILISI — 8 photo slots
+           To add photos: set data-src="images/tbilisi-1.jpg"
+      ══════════════════════════════════════════ -->
+      <div class="trip-card trip-tbilisi fade-in delay-1">
+        <div class="trip-main-photo" id="tbilisi-main">
+          <div class="trip-main-placeholder">
+            <span class="ph-icon">🏔️</span>
+            <span class="ph-label" data-i18n="trips.photo.coming">photo coming</span>
+          </div>
+        </div>
+        <div class="trip-thumbs">
+          <div class="trip-thumb active" data-src="" data-trip="tbilisi">🏔️</div>
+          <div class="trip-thumb" data-src="" data-trip="tbilisi">📸</div>
+          <div class="trip-thumb" data-src="" data-trip="tbilisi">📸</div>
+          <div class="trip-thumb" data-src="" data-trip="tbilisi">📸</div>
+          <div class="trip-thumb" data-src="" data-trip="tbilisi">📸</div>
+          <div class="trip-thumb" data-src="" data-trip="tbilisi">📸</div>
+          <div class="trip-thumb" data-src="" data-trip="tbilisi">📸</div>
+          <div class="trip-thumb" data-src="" data-trip="tbilisi">📸</div>
+        </div>
+        <div class="trip-body">
+          <div class="trip-flag-title"><span class="trip-flag">🇬🇪</span><div class="trip-title" data-i18n="trips.tbilisi">Tbilisi, Georgia</div></div>
+          <div class="trip-meta"><span class="trip-date" data-i18n="trips.tbilisi.date">January 2026</span><span class="trip-country" data-i18n="trips.tbilisi.country">Georgia</span></div>
+          <p class="trip-caption" data-i18n="trips.tbilisi.caption">The city where we stopped pretending the distance didn't matter. Finally, together.</p>
+          <div class="trip-tag"><span>✨</span><span data-i18n="trips.tbilisi.tag">Finally together</span></div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           KOLOMNA — 8 photo slots
+           To add photos: set data-src="images/kolomna-1.jpg"
+      ══════════════════════════════════════════ -->
+      <div class="trip-card trip-kolomna fade-in delay-2">
+        <div class="trip-main-photo" id="kolomna-main">
+          <div class="trip-main-placeholder">
+            <span class="ph-icon">🏰</span>
+            <span class="ph-label" data-i18n="trips.photo.coming">photo coming</span>
+          </div>
+        </div>
+        <div class="trip-thumbs">
+          <div class="trip-thumb active" data-src="" data-trip="kolomna">🏰</div>
+          <div class="trip-thumb" data-src="" data-trip="kolomna">📸</div>
+          <div class="trip-thumb" data-src="" data-trip="kolomna">📸</div>
+          <div class="trip-thumb" data-src="" data-trip="kolomna">📸</div>
+          <div class="trip-thumb" data-src="" data-trip="kolomna">📸</div>
+          <div class="trip-thumb" data-src="" data-trip="kolomna">📸</div>
+          <div class="trip-thumb" data-src="" data-trip="kolomna">📸</div>
+          <div class="trip-thumb" data-src="" data-trip="kolomna">📸</div>
+        </div>
+        <div class="trip-body">
+          <div class="trip-flag-title"><span class="trip-flag">🇷🇺</span><div class="trip-title" data-i18n="trips.kolomna">Kolomna, Russia</div></div>
+          <div class="trip-meta"><span class="trip-date" data-i18n="trips.kolomna.date">March 2026</span><span class="trip-country" data-i18n="trips.kolomna.country">Russia</span></div>
+          <p class="trip-caption" data-i18n="trips.kolomna.caption">Her home. The next stop on the road to building a life together.</p>
+          <div class="trip-tag"><span>🏡</span><span data-i18n="trips.kolomna.tag">Her home, our future</span></div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           ADD NEW TRIP HERE
+           Copy one of the trip-card blocks above,
+           paste it here, and update:
+           • class="trip-card trip-CITYNAME"
+           • id="CITYNAME-main" on the main photo div
+           • data-trip="CITYNAME" on all thumbs
+           • flag emoji, title, date, caption, tag
+           • Add a map pin in the JS places array below
+      ══════════════════════════════════════════ -->
+      <div class="trip-card-future fade-in delay-3">
+        <div class="future-icon">✈️</div>
+        <div class="future-title" data-i18n="trips.future.title">Next adventure</div>
+        <div class="future-sub"   data-i18n="trips.future.sub">The next chapter is waiting to be written.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Trip side panel ── -->
+  <div class="trip-panel-overlay" id="panel-overlay"></div>
+  <div class="trip-panel" id="trip-panel">
+    <div class="panel-header">
+      <div class="panel-flag-title">
+        <span class="panel-flag" id="panel-flag">🌍</span>
+        <div class="panel-title" id="panel-title">—</div>
+      </div>
+      <button class="panel-close" id="panel-close">✕</button>
+    </div>
+    <div class="panel-main-photo" id="panel-main-photo">
+      <span id="panel-ph-icon">📍</span>
+    </div>
+    <div class="panel-thumbs" id="panel-thumbs"></div>
+    <div class="panel-body">
+      <div class="panel-date" id="panel-date"></div>
+      <div class="panel-caption" id="panel-caption"></div>
+      <div id="panel-tag" class="panel-tag"></div>
+    </div>
+    <div class="panel-scroll-hint" id="panel-scroll-hint">← swipe through photos above →</div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-logo">A <span>&</span> A</div>
+      <p data-i18n="footer.tagline">Made with love, for you.</p>
+      <p data-i18n="footer.copy">© 2025 · Always yours</p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const tripsEn = {
+      'trips.label':'Our adventures','trips.title':"Places we've been",'trips.subtitle':"Every city we've touched together, every place that's part of our story.",'trips.photo.coming':'photo coming',
+      'trips.istanbul':'Istanbul, Turkey','trips.istanbul.date':'October 2025','trips.istanbul.country':'Turkey','trips.istanbul.caption':"Where it all began. The city that introduced us to each other and to something neither of us expected.",'trips.istanbul.tag':'Our first meeting',
+      'trips.tbilisi':'Tbilisi, Georgia','trips.tbilisi.date':'January 2026','trips.tbilisi.country':'Georgia','trips.tbilisi.caption':"The city where we stopped pretending the distance didn't matter. Finally, together.",'trips.tbilisi.tag':'Finally together',
+      'trips.kolomna':'Kolomna, Russia','trips.kolomna.date':'March 2026','trips.kolomna.country':'Russia','trips.kolomna.caption':'Her home. The next stop on the road to building a life together.','trips.kolomna.tag':'Her home, our future',
+      'trips.future.title':'Next adventure','trips.future.sub':'The next chapter is waiting to be written.',
+      'trips.cards.label':'Every destination','trips.cards.title':'Our travel diary',
+    };
+    const tripsRu = {
+      'trips.label':'Наши приключения','trips.title':'Места, где мы были','trips.subtitle':'Каждый город, которого мы коснулись вместе, каждое место, ставшее частью нашей истории.','trips.photo.coming':'фото скоро',
+      'trips.istanbul':'Стамбул, Турция','trips.istanbul.date':'Октябрь 2025','trips.istanbul.country':'Турция','trips.istanbul.caption':'Там всё началось. Город, который познакомил нас друг с другом и с чем-то, чего ни один из нас не ожидал.','trips.istanbul.tag':'Наша первая встреча',
+      'trips.tbilisi':'Тбилиси, Грузия','trips.tbilisi.date':'Январь 2026','trips.tbilisi.country':'Грузия','trips.tbilisi.caption':'Город, где мы перестали притворяться, что расстояние не имеет значения. Наконец-то вместе.','trips.tbilisi.tag':'Наконец вместе',
+      'trips.kolomna':'Коломна, Россия','trips.kolomna.date':'Март 2026','trips.kolomna.country':'Россия','trips.kolomna.caption':'Её дом. Следующая остановка на пути к совместной жизни.','trips.kolomna.tag':'Её дом, наше будущее',
+      'trips.future.title':'Следующее приключение','trips.future.sub':'Следующая глава ждёт, чтобы её написали.',
+      'trips.cards.label':'Каждое направление','trips.cards.title':'Наш дневник путешествий',
+    };
+    Object.assign(translations.en, tripsEn);
+    Object.assign(translations.ru, tripsRu);
+    applyTranslations();
+
+    /* Thumbnail swap */
+    document.querySelectorAll('.trip-thumb').forEach(thumb => {
+      thumb.addEventListener('click', () => {
+        const trip = thumb.dataset.trip;
+        const src  = thumb.dataset.src;
+        const main = document.getElementById(trip + '-main');
+        document.querySelectorAll('[data-trip="'+trip+'"]').forEach(t => t.classList.remove('active'));
+        thumb.classList.add('active');
+        if (src) {
+          main.innerHTML = '<img src="'+src+'" alt="trip photo" />';
+        }
+      });
+    });
+
+    /* Map */
+    const lang = localStorage.getItem('lang') || 'en';
+
+    /* Trip data for panel — mirrors the card data */
+    const tripData = {
+      istanbul: {
+        flag: '🇹🇷',
+        title:   lang==='ru' ? 'Стамбул, Турция'  : 'Istanbul, Turkey',
+        date:    lang==='ru' ? 'Октябрь 2025'      : 'October 2025',
+        caption: lang==='ru'
+          ? 'Там всё началось. Город, который познакомил нас друг с другом и с чем-то, чего ни один из нас не ожидал.'
+          : 'Where it all began. The city that introduced us to each other and to something neither of us expected.',
+        tag:     lang==='ru' ? '🌸 Наша первая встреча' : '🌸 Our first meeting',
+        icon:    '🕌',
+        thumbs:  ['','','','','','','',''],
+        colors:  'linear-gradient(135deg,#F5D5C0,#E8A87C)',
+      },
+      tbilisi: {
+        flag: '🇬🇪',
+        title:   lang==='ru' ? 'Тбилиси, Грузия'  : 'Tbilisi, Georgia',
+        date:    lang==='ru' ? 'Январь 2026'       : 'January 2026',
+        caption: lang==='ru'
+          ? 'Город, где мы перестали притворяться, что расстояние не имеет значения. Наконец-то вместе.'
+          : "The city where we stopped pretending the distance didn't matter. Finally, together.",
+        tag:     lang==='ru' ? '✨ Наконец вместе' : '✨ Finally together',
+        icon:    '🏔️',
+        thumbs:  ['','','','','','','',''],
+        colors:  'linear-gradient(135deg,#E8D5A0,#C9A96E)',
+      },
+      kolomna: {
+        flag: '🇷🇺',
+        title:   lang==='ru' ? 'Коломна, Россия'   : 'Kolomna, Russia',
+        date:    lang==='ru' ? 'Март 2026'          : 'March 2026',
+        caption: lang==='ru'
+          ? 'Её дом. Следующая остановка на пути к совместной жизни.'
+          : 'Her home. The next stop on the road to building a life together.',
+        tag:     lang==='ru' ? '🏡 Её дом, наше будущее' : '🏡 Her home, our future',
+        icon:    '🏰',
+        thumbs:  ['','','','','','','',''],
+        colors:  'linear-gradient(135deg,#C0D0E8,#7AA0C9)',
+      },
+    };
+
+    /* Panel logic */
+    const overlay     = document.getElementById('panel-overlay');
+    const panel       = document.getElementById('trip-panel');
+    const panelClose  = document.getElementById('panel-close');
+    const panelFlag   = document.getElementById('panel-flag');
+    const panelTitle  = document.getElementById('panel-title');
+    const panelMain   = document.getElementById('panel-main-photo');
+    const panelThumbs = document.getElementById('panel-thumbs');
+    const panelDate   = document.getElementById('panel-date');
+    const panelCap    = document.getElementById('panel-caption');
+    const panelTag    = document.getElementById('panel-tag');
+
+    function openPanel(tripKey) {
+      const d = tripData[tripKey];
+      if (!d) return;
+
+      panelFlag.textContent  = d.flag;
+      panelTitle.textContent = d.title;
+      panelDate.textContent  = d.date;
+      panelCap.textContent   = d.caption;
+      panelTag.textContent   = d.tag;
+
+      // Main photo
+      panelMain.style.background = d.colors;
+      panelMain.innerHTML = `<span style="font-size:4rem">${d.icon}</span>`;
+
+      // Thumbs
+      panelThumbs.innerHTML = '';
+      d.thumbs.forEach((src, i) => {
+        const th = document.createElement('div');
+        th.className = 'panel-thumb' + (i === 0 ? ' active' : '');
+        th.innerHTML = src ? `<img src="${src}" alt="photo ${i+1}">` : `<span style="font-size:1.2rem">📸</span>`;
+        th.addEventListener('click', () => {
+          panelThumbs.querySelectorAll('.panel-thumb').forEach(t => t.classList.remove('active'));
+          th.classList.add('active');
+          if (src) panelMain.innerHTML = `<img src="${src}" alt="photo">`;
+          else panelMain.innerHTML = `<span style="font-size:4rem">${d.icon}</span>`;
+        });
+        panelThumbs.appendChild(th);
+      });
+
+      overlay.classList.add('open');
+      panel.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closePanel() {
+      overlay.classList.remove('open');
+      panel.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    panelClose.addEventListener('click', closePanel);
+    overlay.addEventListener('click', closePanel);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+
+    /* Map init */
+    const places = [
+      { lat:41.0082, lng:28.9784, color:'#C9622A', flag:'🇹🇷', key:'istanbul',
+        title: lang==='ru'?'Стамбул, Турция':'Istanbul, Turkey',
+        date:  lang==='ru'?'Октябрь 2025':'October 2025' },
+      { lat:41.6938, lng:44.8015, color:'#7A5C2E', flag:'🇬🇪', key:'tbilisi',
+        title: lang==='ru'?'Тбилиси, Грузия':'Tbilisi, Georgia',
+        date:  lang==='ru'?'Январь 2026':'January 2026' },
+      { lat:55.0953, lng:38.7775, color:'#2E4A7A', flag:'🇷🇺', key:'kolomna',
+        title: lang==='ru'?'Коломна, Россия':'Kolomna, Russia',
+        date:  lang==='ru'?'Март 2026':'March 2026' },
+      /* ADD NEW MAP PIN HERE
+         { lat: XX.XXXX, lng: XX.XXXX, color: '#XXXXXX', flag: '🏳️', key:'cityname',
+           title: 'City, Country', date: 'Month Year' }, */
+    ];
+
+    const map = L.map('trips-map', { center:[46,36], zoom:4, scrollWheelZoom:false });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution:'© OpenStreetMap © CARTO', subdomains:'abcd', maxZoom:19
+    }).addTo(map);
+
+    places.forEach(p => {
+      const icon = L.divIcon({
+        html: `<div style="width:38px;height:38px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:${p.color};border:3px solid #fff;box-shadow:0 4px 14px rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center;cursor:pointer;"><span style="transform:rotate(45deg);font-size:1rem">${p.flag}</span></div>`,
+        className:'', iconSize:[38,38], iconAnchor:[19,38],
+      });
+
+      L.marker([p.lat, p.lng], { icon })
+        .addTo(map)
+        .on('click', () => openPanel(p.key));
+    });
+
+    L.polyline([[41.0082,28.9784],[41.6938,44.8015],[55.0953,38.7775]], {
+      color:'#C9A0C0', weight:2, opacity:0.5, dashArray:'6,8'
+    }).addTo(map);
+  </script>
+</body>
+</html>

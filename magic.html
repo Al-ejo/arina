@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A & A ✦ Magic</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* ── Slytherin dark theme overrides ── */
+    .magic-page {
+      background: #0A1A0C;
+      min-height: 100vh;
+      color: #C8D8C0;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Candle particles canvas */
+    #magic-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .magic-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Nav override for dark page ── */
+    .magic-page .nav { background: transparent; }
+    .magic-page .nav.scrolled {
+      background: rgba(10,26,12,0.92);
+      border-bottom: 1px solid rgba(100,180,100,0.15);
+    }
+    .magic-page .nav-logo { color: #C8D8C0; }
+    .magic-page .nav-logo span { color: #7FBA7F; }
+    .magic-page .nav-links a { color: #8AAE8A; }
+    .magic-page .nav-links a:hover { color: #C8D8C0; }
+    .magic-page .nav-links a::after { background: #7FBA7F; }
+    .magic-page .lang-toggle {
+      background: rgba(100,160,100,0.1);
+      border-color: rgba(100,160,100,0.3);
+      color: #8AAE8A;
+    }
+    .magic-page .hamburger span { background: #C8D8C0; }
+    .magic-page .nav-drawer {
+      background: rgba(10,26,12,0.98);
+      border-color: rgba(100,160,100,0.2);
+    }
+    .magic-page .nav-drawer a { color: #8AAE8A; border-color: rgba(100,160,100,0.15); }
+
+    /* ── Hero ── */
+    .magic-hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: calc(var(--nav-height) + 3rem) 2rem 4rem;
+      position: relative;
+    }
+
+    .magic-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 30%, rgba(34,85,34,0.35) 0%, transparent 65%),
+        radial-gradient(ellipse at 20% 80%, rgba(20,60,20,0.2) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .magic-crest {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+      animation: crest-glow 3s ease-in-out infinite alternate;
+      filter: drop-shadow(0 0 20px rgba(100,200,100,0.3));
+    }
+
+    @keyframes crest-glow {
+      from { filter: drop-shadow(0 0 10px rgba(100,200,100,0.2)); }
+      to   { filter: drop-shadow(0 0 30px rgba(100,200,100,0.5)); }
+    }
+
+    .magic-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #7FBA7F;
+      margin-bottom: 1rem;
+    }
+
+    .magic-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 700;
+      color: #E8F0E0;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 40px rgba(100,200,100,0.2);
+    }
+
+    .magic-title em {
+      color: #7FBA7F;
+      font-style: italic;
+    }
+
+    .magic-subtitle {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 1.2rem;
+      color: #8AAE8A;
+      max-width: 500px;
+      line-height: 1.8;
+      margin-bottom: 2.5rem;
+    }
+
+    .slytherin-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(34,85,34,0.3);
+      border: 1px solid rgba(100,180,100,0.25);
+      border-radius: 50px;
+      padding: 10px 24px;
+      color: #9AC89A;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+    }
+
+    /* ── Section shared ── */
+    .magic-section {
+      padding: 6rem 0;
+      position: relative;
+    }
+
+    .magic-section-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .magic-section-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #7FBA7F;
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+
+    .magic-section-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      color: #E8F0E0;
+      margin-bottom: 1rem;
+    }
+
+    .magic-divider {
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, #3A7A3A, transparent);
+      margin: 1.5rem 0;
+    }
+
+    /* ── Sorting Hat ── */
+    .sorting-section {
+      text-align: center;
+    }
+
+    .sorting-desc {
+      font-family: var(--font-serif);
+      font-style: italic;
+      color: #8AAE8A;
+      font-size: 1.05rem;
+      max-width: 500px;
+      margin: 0 auto 3rem;
+      line-height: 1.8;
+    }
+
+    .hat-container {
+      position: relative;
+      display: inline-block;
+      cursor: pointer;
+      margin-bottom: 2rem;
+    }
+
+    .hat-emoji {
+      font-size: 7rem;
+      display: block;
+      transition: transform 0.3s ease;
+      filter: drop-shadow(0 0 20px rgba(100,200,100,0.1));
+      animation: hat-float 4s ease-in-out infinite;
+    }
+
+    @keyframes hat-float {
+      0%,100% { transform: translateY(0) rotate(-2deg); }
+      50%      { transform: translateY(-12px) rotate(2deg); }
+    }
+
+    .hat-container:hover .hat-emoji { transform: scale(1.1) rotate(-5deg); animation-play-state: paused; }
+    .hat-container.sorting .hat-emoji { animation: hat-shake 0.6s ease infinite; }
+
+    @keyframes hat-shake {
+      0%,100% { transform: rotate(-8deg) scale(1.05); }
+      50%      { transform: rotate(8deg) scale(1.1); }
+    }
+
+    .hat-btn {
+      display: inline-block;
+      padding: 14px 36px;
+      border-radius: 50px;
+      background: transparent;
+      border: 1.5px solid rgba(100,180,100,0.4);
+      color: #9AC89A;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .hat-btn:hover {
+      background: rgba(34,85,34,0.3);
+      border-color: rgba(100,180,100,0.7);
+      color: #C8D8C0;
+    }
+
+    /* House reveal */
+    .house-reveal {
+      display: none;
+      margin-top: 3rem;
+      padding: 2.5rem;
+      border-radius: var(--radius-lg);
+      background: rgba(10,40,10,0.6);
+      border: 1px solid rgba(100,180,100,0.2);
+      animation: reveal-in 0.8s cubic-bezier(0.4,0,0.2,1) forwards;
+    }
+
+    .house-reveal.show { display: block; }
+
+    @keyframes reveal-in {
+      from { opacity: 0; transform: scale(0.95) translateY(20px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .house-name {
+      font-family: var(--font-display);
+      font-size: 3rem;
+      font-weight: 700;
+      color: #7FBA7F;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 30px rgba(100,200,100,0.4);
+    }
+
+    .house-motto {
+      font-family: var(--font-serif);
+      font-style: italic;
+      color: #8AAE8A;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+    }
+
+    .house-traits {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 1.25rem;
+    }
+
+    .trait-badge {
+      padding: 6px 16px;
+      border-radius: 20px;
+      background: rgba(34,85,34,0.4);
+      border: 1px solid rgba(100,180,100,0.25);
+      color: #9AC89A;
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Acceptance Letter ── */
+    .letter-section { text-align: center; }
+
+    .envelope-wrap {
+      display: inline-block;
+      cursor: pointer;
+      perspective: 1000px;
+      margin: 2.5rem auto;
+    }
+
+    .envelope {
+      position: relative;
+      width: 320px;
+      height: 220px;
+      transform-style: preserve-3d;
+      transition: transform 0.1s ease;
+    }
+
+    .envelope:hover { transform: translateY(-8px) rotate(-1deg); }
+
+    .envelope-body {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(160deg, #F5EDD0, #EDD99A);
+      border-radius: 8px;
+      box-shadow:
+        0 20px 60px rgba(0,0,0,0.5),
+        inset 0 1px 0 rgba(255,255,255,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .envelope-lines {
+      position: absolute;
+      inset: 0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .envelope-lines::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      width: 2px; height: 100%;
+      background: rgba(160,120,40,0.15);
+    }
+
+    .envelope-lines::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 0;
+      width: 100%; height: 2px;
+      background: rgba(160,120,40,0.1);
+    }
+
+    /* Diagonal flap lines */
+    .envelope-flap-left,
+    .envelope-flap-right {
+      position: absolute;
+      top: 0; width: 50%; height: 50%;
+      border: none;
+    }
+
+    .envelope-flap-left {
+      left: 0;
+      border-right: 1px solid rgba(160,120,40,0.2);
+      border-bottom: 1px solid rgba(160,120,40,0.2);
+    }
+
+    .envelope-flap-right {
+      right: 0;
+      border-left: 1px solid rgba(160,120,40,0.2);
+      border-bottom: 1px solid rgba(160,120,40,0.2);
+    }
+
+    .wax-seal {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #8B2020, #5A0F0F);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      box-shadow:
+        0 4px 12px rgba(0,0,0,0.4),
+        inset 0 1px 0 rgba(255,100,100,0.2);
+      z-index: 2;
+      transition: transform 0.3s ease;
+    }
+
+    .envelope:hover .wax-seal { transform: scale(1.05); }
+
+    .envelope-label {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 0.85rem;
+      color: #8A6A20;
+      letter-spacing: 0.05em;
+    }
+
+    .open-hint {
+      font-size: 0.8rem;
+      color: #6A8A6A;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 0.5rem;
+      animation: hint-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes hint-pulse {
+      0%,100% { opacity: 0.5; }
+      50%      { opacity: 1; }
+    }
+
+    /* Letter modal - full rewrite */
+    .letter-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(5,15,5,0.96);
+      z-index: 3000;
+      display: none;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem 1rem;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .letter-modal.open {
+      display: flex;
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+    /* Wax seal crack animation */
+    @keyframes sealCrack {
+      0%   { transform: scale(1) rotate(0deg); }
+      20%  { transform: scale(1.15) rotate(-8deg); }
+      40%  { transform: scale(0.9) rotate(6deg); }
+      60%  { transform: scale(1.05) rotate(-3deg); }
+      80%  { transform: scale(0.97) rotate(2deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+
+    .wax-seal.cracking { animation: sealCrack 0.5s ease forwards; }
+
+    /* Envelope flap open */
+    @keyframes flapOpen {
+      from { transform: rotateX(0deg); }
+      to   { transform: rotateX(-180deg); }
+    }
+
+    /* Letter paper */
+    .letter-paper {
+      position: relative;
+      width: 100%;
+      max-width: 640px;
+      margin: auto;
+
+      /* Authentic aged parchment */
+      background: #F8EDD0;
+      background-image:
+        repeating-linear-gradient(
+          to bottom,
+          transparent,
+          transparent 31px,
+          rgba(139,90,30,0.1) 31px,
+          rgba(139,90,30,0.1) 32px
+        ),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+
+      /* Double-line border like formal letters */
+      border: 1px solid #C8A050;
+      outline: 4px solid transparent;
+      box-shadow:
+        0 0 0 1px #C8A050,
+        0 0 0 5px #F8EDD0,
+        0 0 0 6px #C8A050,
+        0 30px 80px rgba(0,0,0,0.7);
+      border-radius: 2px;
+
+      padding: 3rem 3rem 2rem;
+      animation: letter-unfold 0.6s cubic-bezier(0.4,0,0.2,1) forwards;
+    }
+
+    @keyframes letter-unfold {
+      from { opacity:0; transform: translateY(30px) scaleY(0.9); }
+      to   { opacity:1; transform: translateY(0) scaleY(1); }
+    }
+
+    /* Hogwarts crest watermark removed — real crest used in header */
+
+    .letter-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      position: relative;
+      z-index: 1;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid rgba(139,90,30,0.2);
+    }
+
+    /* Crest at top */
+    .letter-crest {
+      display: block;
+      margin-bottom: 0.75rem;
+    }
+
+    .letter-school {
+      font-family: 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #3A2000;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      line-height: 1.3;
+    }
+
+    .letter-school-sub {
+      font-family: Georgia, serif;
+      font-style: italic;
+      font-size: 0.82rem;
+      color: #6A4A10;
+      margin-top: 0.3rem;
+    }
+
+    .letter-headmaster {
+      font-size: 0.72rem;
+      color: #8A6A20;
+      margin-top: 0.4rem;
+      line-height: 1.5;
+    }
+
+    .letter-divider-line {
+      border: none;
+      border-top: 1px solid rgba(160,120,40,0.4);
+      margin: 0.75rem 0;
+    }
+
+    .letter-body {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 1rem;
+      color: #2A1800;
+      line-height: 2;
+      position: relative;
+      z-index: 1;
+    }
+
+    .letter-dear {
+      font-family: 'Palatino Linotype', Palatino, Georgia, serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #3A2000;
+      margin-bottom: 1rem;
+    }
+
+    .letter-body p { margin-bottom: 1rem; }
+
+    .letter-list {
+      list-style: none;
+      padding: 0;
+      margin: 0.5rem 0 1rem 0.5rem;
+    }
+
+    .letter-list li {
+      padding: 0.25rem 0;
+      color: #3A2000;
+    }
+
+    .letter-list li::before {
+      content: '✦ ';
+      color: #8A5A10;
+    }
+
+    .letter-sign {
+      margin-top: 2rem;
+      font-family: 'Palatino Linotype', Palatino, Georgia, serif;
+      font-style: italic;
+      color: #3A2000;
+      font-size: 1.05rem;
+    }
+
+    .letter-ps {
+      margin-top: 1rem;
+      font-size: 0.88rem;
+      color: #6A4A10;
+      font-style: italic;
+      border-top: 1px solid rgba(160,120,40,0.2);
+      padding-top: 0.75rem;
+    }
+
+    /* Close button — top right */
+    .letter-close-btn {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      background: rgba(139,90,30,0.15);
+      border: 1px solid rgba(139,90,30,0.3);
+      color: #8A6A20;
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      z-index: 2;
+    }
+    .letter-close-btn:hover { background: rgba(139,90,30,0.3); }
+
+    /* Close button — bottom of letter for mobile */
+    .letter-close-bottom {
+      display: block;
+      width: 100%;
+      margin-top: 2rem;
+      padding: 14px;
+      background: rgba(139,90,30,0.12);
+      border: 1px solid rgba(139,90,30,0.3);
+      border-radius: 8px;
+      color: #6A4A10;
+      font-family: Georgia, serif;
+      font-size: 0.9rem;
+      font-style: italic;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+    .letter-close-bottom:hover { background: rgba(139,90,30,0.22); }
+
+    @media (max-width: 640px) {
+      .letter-paper {
+        padding: 2rem 1.5rem 1.5rem;
+        margin: 0.5rem auto;
+      }
+      .letter-school { font-size: 1.1rem; letter-spacing: 0.06em; }
+      .letter-body { font-size: 0.95rem; }
+    }
+
+    /* ── Draco Section ── */
+    .draco-section {
+      background: rgba(5,20,5,0.5);
+      border-top: 1px solid rgba(100,180,100,0.08);
+      border-bottom: 1px solid rgba(100,180,100,0.08);
+    }
+
+    .draco-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .draco-visual {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .draco-portrait {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 40% 35%, #1A3A1A, #0A1A0A);
+      border: 2px solid rgba(100,180,100,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 5rem;
+      box-shadow:
+        0 0 40px rgba(100,200,100,0.08),
+        0 20px 40px rgba(0,0,0,0.4);
+      position: relative;
+    }
+
+    .draco-portrait::after {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      border: 1px solid rgba(100,180,100,0.1);
+    }
+
+    .draco-name {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      color: #C8D8C0;
+      text-align: center;
+    }
+
+    .draco-house-tag {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #7FBA7F;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .draco-text .magic-section-title {
+      font-size: 2rem;
+    }
+
+    .draco-desc {
+      font-family: var(--font-serif);
+      font-style: italic;
+      color: #8AAE8A;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+    }
+
+    .draco-quote {
+      border-left: 2px solid #3A7A3A;
+      padding-left: 1.25rem;
+      font-family: var(--font-serif);
+      font-style: italic;
+      color: #7FBA7F;
+      font-size: 1.1rem;
+      line-height: 1.7;
+    }
+
+    /* ── Footer override ── */
+    .magic-page .footer {
+      background: #050F05;
+      border-top: 1px solid rgba(100,180,100,0.1);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 700px) {
+      .draco-inner { grid-template-columns: 1fr; gap: 2rem; text-align: center; }
+      .draco-quote { text-align: left; }
+      .letter-paper { padding: 2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body class="magic-page">
+
+  <canvas id="magic-canvas"></canvas>
+
+  <div class="magic-content">
+
+    <!-- Nav -->
+    <nav class="nav">
+      <a href="index.html" class="nav-logo">A <span>&</span> A</a>
+      <ul class="nav-links">
+        <li><a href="index.html"    data-i18n="nav.home">Home</a></li>
+        <li><a href="timeline.html" data-i18n="nav.timeline">Timeline</a></li>
+        <li><a href="gallery.html"  data-i18n="nav.gallery">Gallery</a></li>
+        <li><a href="videos.html"   data-i18n="nav.videos">Videos</a></li>
+        <li><a href="story.html"    data-i18n="nav.story">Our Story</a></li>
+        <li><a href="trips.html"    data-i18n="nav.trips">Trips</a></li>
+        <li><a href="magic.html"    data-i18n="nav.magic">Magic</a></li>
+        <li><a href="private.html"  data-i18n="nav.private">Private</a></li>
+      </ul>
+      <button class="lang-toggle"><span class="flag">🌸</span><span class="lang-label">RU</span></button>
+      <button class="hamburger"><span></span><span></span><span></span></button>
+    </nav>
+    <div class="nav-drawer">
+      <a href="index.html"    data-i18n="nav.home">Home</a>
+      <a href="timeline.html" data-i18n="nav.timeline">Timeline</a>
+      <a href="gallery.html"  data-i18n="nav.gallery">Gallery</a>
+      <a href="videos.html"   data-i18n="nav.videos">Videos</a>
+      <a href="story.html"    data-i18n="nav.story">Our Story</a>
+      <a href="trips.html"    data-i18n="nav.trips">Trips</a>
+      <a href="magic.html"    data-i18n="nav.magic">Magic</a>
+      <a href="private.html"  data-i18n="nav.private">Private</a>
+      <button class="lang-toggle" style="align-self:flex-start"><span class="flag">🌸</span><span class="lang-label">RU</span></button>
+    </div>
+
+    <!-- ── Hero ── -->
+    <section class="magic-hero">
+      <div class="magic-crest">🐍</div>
+      <span class="magic-label fade-in" data-i18n="magic.label">A magical world for you</span>
+      <h1 class="magic-title fade-in delay-1">
+        <span data-i18n="magic.title1">Welcome,</span><br/>
+        <em data-i18n="magic.title2">Arina</em>
+      </h1>
+      <p class="magic-subtitle fade-in delay-2" data-i18n="magic.subtitle">
+        The wizarding world has been waiting for you.
+      </p>
+      <div class="slytherin-badge fade-in delay-3">
+        <span>🐍</span>
+        <span data-i18n="magic.house">Slytherin · Ambitious · Cunning · Loyal</span>
+      </div>
+    </section>
+
+    <!-- ── Sorting Hat ── -->
+    <section class="magic-section sorting-section">
+      <div class="magic-section-inner">
+        <span class="magic-section-label" data-i18n="magic.hat.label">The Sorting Ceremony</span>
+        <h2 class="magic-section-title fade-in" data-i18n="magic.hat.title">The Sorting Hat</h2>
+        <div class="magic-divider"></div>
+        <p class="sorting-desc fade-in" data-i18n="magic.hat.desc">
+          Every witch and wizard must be sorted. The hat has spoken — but dare you try it yourself?
+        </p>
+
+        <div class="hat-container fade-in" id="hat-container">
+          <img
+            id="hat-emoji"
+            src="images/sorting-hat.jpg"
+            alt="Sorting Hat"
+            style="
+              width: 180px;
+              height: 180px;
+              object-fit: contain;
+              display: block;
+              margin: 0 auto;
+              filter: drop-shadow(0 0 20px rgba(100,200,100,0.15));
+              animation: hat-float 4s ease-in-out infinite;
+            "
+          />
+        </div>
+
+        <div class="fade-in">
+          <button class="hat-btn" id="hat-btn" data-i18n="magic.hat.btn">
+            Place the hat upon your head
+          </button>
+        </div>
+
+        <div class="house-reveal" id="house-reveal">
+          <div style="font-size:3rem;margin-bottom:1rem">🐍</div>
+          <div class="house-name" data-i18n="magic.house.name">SLYTHERIN</div>
+          <div class="house-motto" data-i18n="magic.house.motto">
+            "Or perhaps in Slytherin, you'll make your real friends."
+          </div>
+          <p style="color:#8AAE8A;font-size:0.95rem;max-width:460px;margin:0 auto" data-i18n="magic.house.desc">
+            Slytherin values ambition, cunning, leadership, and resourcefulness. The greatest witches and wizards have come from this house — and so have the most interesting ones.
+          </p>
+          <div class="house-traits">
+            <span class="trait-badge" data-i18n="magic.trait1">Ambitious</span>
+            <span class="trait-badge" data-i18n="magic.trait2">Cunning</span>
+            <span class="trait-badge" data-i18n="magic.trait3">Resourceful</span>
+            <span class="trait-badge" data-i18n="magic.trait4">Determined</span>
+            <span class="trait-badge" data-i18n="magic.trait5">Loyal</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Acceptance Letter ── -->
+    <section class="magic-section letter-section">
+      <div class="magic-section-inner">
+        <span class="magic-section-label" data-i18n="magic.letter.label">Your letter has arrived</span>
+        <h2 class="magic-section-title fade-in" data-i18n="magic.letter.title">The Acceptance Letter</h2>
+        <div class="magic-divider"></div>
+        <p class="sorting-desc fade-in" data-i18n="magic.letter.desc">
+          Delivered by owl, sealed with love. Something very special awaits inside.
+        </p>
+
+        <div class="envelope-wrap fade-in" id="envelope-wrap">
+          <div class="envelope" id="envelope">
+            <div class="envelope-body">
+              <div class="envelope-lines"></div>
+              <div class="envelope-flap-left"></div>
+              <div class="envelope-flap-right"></div>
+              <div class="wax-seal">
+                <img src="images/hogwarts-crest-bw.png" alt="Hogwarts Crest" style="width:48px;height:48px;object-fit:contain;filter:invert(1) brightness(0.7) sepia(0.3);opacity:0.85;" />
+              </div>
+              <div class="envelope-label">Miss Arina</div>
+            </div>
+          </div>
+          <div class="open-hint" data-i18n="magic.letter.hint">tap to open ✦</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Arina Section ── -->
+    <section class="magic-section draco-section">
+      <div class="draco-inner">
+        <div class="draco-visual fade-in-left">
+          <!-- To add her photo: replace the div below with <img src="images/arina.jpg" style="width:180px;height:180px;border-radius:50%;object-fit:cover;border:2px solid rgba(100,180,100,0.2);box-shadow:0 0 40px rgba(100,200,100,0.08),0 20px 40px rgba(0,0,0,0.4);" /> -->
+          <img src="images/arina.jpeg" style="width:180px;height:180px;border-radius:50%;object-fit:cover;border:2px solid rgba(100,180,100,0.2);box-shadow:0 0 40px rgba(100,200,100,0.08),0 20px 40px rgba(0,0,0,0.4);" />
+          <div class="draco-name" data-i18n="magic.draco.name">Arina Yudaeva</div>
+          <div class="draco-house-tag">
+            <span>🐍</span>
+            <span data-i18n="magic.draco.house">Slytherin · Pure-Blood</span>
+          </div>
+        </div>
+        <div class="draco-text fade-in-right">
+          <span class="magic-section-label" data-i18n="magic.draco.label">Your favourite</span>
+          <h2 class="magic-section-title" data-i18n="magic.draco.title">The Girl Who Torments Her Husband</h2>
+          <div class="magic-divider"></div>
+          <p class="draco-desc" data-i18n="magic.draco.desc">
+            Complex, misunderstood, and one of the most fascinating characters in the wizarding world. There is always more to a person than what the world sees on the surface.
+          </p>
+          <div class="draco-quote" data-i18n="magic.draco.quote">
+            "Maybe you need to earn it."
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-logo">A <span style="color:var(--gold)">&</span> A</div>
+        <p data-i18n="footer.tagline">Made with love, for you.</p>
+        <p data-i18n="footer.copy">© 2025 · Always yours</p>
+      </div>
+    </footer>
+
+  </div><!-- end magic-content -->
+
+  <!-- ── Letter Modal ── -->
+  <div class="letter-modal" id="letter-modal">
+    <div class="letter-paper">
+      <button class="letter-close-btn" id="letter-close">✕</button>
+
+      <div class="letter-header">
+        <span class="letter-crest">
+          <img src="images/hogwarts-crest-color.png" alt="Hogwarts Crest" style="width:100px;height:100px;object-fit:contain;display:block;margin:0 auto;" />
+        </span>
+        <div class="letter-school" data-i18n="magic.letter.school">
+          HOGWARTS SCHOOL<br/>of Witchcraft and Wizardry
+        </div>
+        <div class="letter-school-sub" data-i18n="magic.letter.headmaster.title">
+          Headmaster: Albus Dumbledore
+        </div>
+        <div class="letter-headmaster" data-i18n="magic.letter.headmaster.titles">
+          (Order of Merlin, First Class, Grand Sorc., Chf. Warlock,<br/>
+          Supreme Mugwump, International Confed. of Wizards)
+        </div>
+        <hr class="letter-divider-line"/>
+      </div>
+
+      <div class="letter-body">
+        <div class="letter-dear" data-i18n="magic.letter.dear">Dear Miss Arina,</div>
+
+        <p data-i18n="magic.letter.p1">
+          We are pleased to inform you that you have been accepted into the most magical journey of all time — a life filled with love, adventure, and endless happiness with me.
+        </p>
+
+        <p data-i18n="magic.letter.p2">
+          Your term begins immediately and will last forever. You will be traveling to the most wonderful places with your favorite person (me, obviously).
+        </p>
+
+        <p data-i18n="magic.letter.p3">Please find enclosed all the reasons why you're amazing:</p>
+
+        <ul class="letter-list">
+          <li data-i18n="magic.letter.l1">Your smile that lights up my entire world</li>
+          <li data-i18n="magic.letter.l2">The way you make everything better</li>
+          <li data-i18n="magic.letter.l3">How you laugh at my terrible jokes</li>
+          <li data-i18n="magic.letter.l4">Your beautiful heart and kindness</li>
+          <li data-i18n="magic.letter.l5">Every single moment with you</li>
+        </ul>
+
+        <p data-i18n="magic.letter.p4">We eagerly await your continued presence in my life.</p>
+
+        <div class="letter-sign" data-i18n="magic.letter.sign">
+          Yours sincerely,<br/>Your Muggle
+        </div>
+
+        <div class="letter-ps" data-i18n="magic.letter.ps">
+          P.S. — I solemnly swear I am up to good with you. Always. ⚡
+        </div>
+
+        <!-- Bottom close button for easy mobile access -->
+        <button class="letter-close-bottom" id="letter-close-bottom">
+          — fold the letter —
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script>
+    /* ── Magic page translations ── */
+    const magicEn = {
+      'magic.label':   'A magical world for you',
+      'magic.title1':  'Welcome,',
+      'magic.title2':  'Arina',
+      'magic.subtitle':'The wizarding world has been waiting for you.',
+      'magic.house':   'Slytherin · Ambitious · Cunning · Loyal',
+
+      'magic.hat.label': 'The Sorting Ceremony',
+      'magic.hat.title': 'The Sorting Hat',
+      'magic.hat.desc':  'Every witch and wizard must be sorted. The hat has spoken — but dare you try it yourself?',
+      'magic.hat.btn':   'Place the hat upon your head',
+      'magic.house.name':'SLYTHERIN',
+      'magic.house.motto':'"Or perhaps in Slytherin, you\'ll make your real friends."',
+      'magic.house.desc': 'Slytherin values ambition, cunning, leadership, and resourcefulness. The greatest witches and wizards have come from this house — and so have the most interesting ones.',
+      'magic.trait1': 'Ambitious',
+      'magic.trait2': 'Cunning',
+      'magic.trait3': 'Resourceful',
+      'magic.trait4': 'Determined',
+      'magic.trait5': 'Loyal',
+
+      'magic.letter.label': 'Your letter has arrived',
+      'magic.letter.title': 'The Acceptance Letter',
+      'magic.letter.desc':  'Delivered by owl, sealed with love. Something very special awaits inside.',
+      'magic.letter.hint':  'tap to open ✦',
+      'magic.letter.school':'HOGWARTS SCHOOL of Witchcraft and Wizardry',
+      'magic.letter.headmaster.title': 'Headmaster: Albus Dumbledore',
+      'magic.letter.headmaster.titles':'(Order of Merlin, First Class, Grand Sorc., Chf. Warlock, Supreme Mugwump, International Confed. of Wizards)',
+      'magic.letter.dear':  'Dear Miss Arina,',
+      'magic.letter.p1':    'We are pleased to inform you that you have been accepted into the most magical journey of all time — a life filled with love, adventure, and endless happiness with me.',
+      'magic.letter.p2':    'Your term begins immediately and will last forever. You will be traveling to the most wonderful places with your favorite person (me, obviously).',
+      'magic.letter.p3':    'Please find enclosed all the reasons why you\'re amazing:',
+      'magic.letter.l1':    'Your smile that lights up my entire world',
+      'magic.letter.l2':    'The way you make everything better',
+      'magic.letter.l3':    'How you laugh at my terrible jokes',
+      'magic.letter.l4':    'Your beautiful heart and kindness',
+      'magic.letter.l5':    'Every single moment with you',
+      'magic.letter.p4':    'We eagerly await your continued presence in my life.',
+      'magic.letter.sign':  'Yours sincerely, Your Muggle',
+      'magic.letter.ps':    'P.S. — I solemnly swear I am up to good with you. Always. ⚡',
+
+      'magic.draco.label': 'Your favourite',
+      'magic.draco.name':  'Arina Yudaeva',
+      'magic.draco.house': 'Slytherin · Pure-Blood',
+      'magic.draco.title': 'The Girl Who Torments Her Husband',
+      'magic.draco.desc':  'Complex, misunderstood, and one of the most fascinating characters in the wizarding world. There is always more to a person than what the world sees on the surface.',
+      'magic.draco.quote': '"Maybe you need to earn it."',
+    };
+
+    const magicRu = {
+      'magic.label':   'Волшебный мир для тебя',
+      'magic.title1':  'Добро пожаловать,',
+      'magic.title2':  'Арина',
+      'magic.subtitle':'Волшебный мир давно ждал тебя.',
+      'magic.house':   'Слизерин · Амбициозная · Хитрая · Верная',
+
+      'magic.hat.label': 'Церемония распределения',
+      'magic.hat.title': 'Распределяющая шляпа',
+      'magic.hat.desc':  'Каждая ведьма и волшебник должны пройти распределение. Шляпа уже всё решила — но осмелишься ли ты проверить?',
+      'magic.hat.btn':   'Надень шляпу',
+      'magic.house.name':'СЛИЗЕРИН',
+      'magic.house.motto':'"А может, в Слизерине ты найдёшь настоящих друзей."',
+      'magic.house.desc': 'Слизерин ценит амбиции, хитрость, лидерство и находчивость. Величайшие волшебники вышли из этого факультета — как и самые интересные.',
+      'magic.trait1': 'Амбициозная',
+      'magic.trait2': 'Хитрая',
+      'magic.trait3': 'Находчивая',
+      'magic.trait4': 'Целеустремлённая',
+      'magic.trait5': 'Верная',
+
+      'magic.letter.label': 'Твоё письмо прибыло',
+      'magic.letter.title': 'Письмо о зачислении',
+      'magic.letter.desc':  'Доставлено совой, запечатано любовью. Внутри тебя ждёт кое-что очень особенное.',
+      'magic.letter.hint':  'нажми, чтобы открыть ✦',
+      'magic.letter.school':'ХОГВАРТС школа чародейства и волшебства',
+      'magic.letter.headmaster.title': 'Директор: Альбус Дамблдор',
+      'magic.letter.headmaster.titles':'(Орден Мерлина первого класса, Великий чародей, Верховный чародей, Верховный Маг-мугвамп, Международная конфедерация магов)',
+      'magic.letter.dear':  'Дорогая мисс Арина,',
+      'magic.letter.p1':    'Мы рады сообщить тебе, что ты принята на самое волшебное путешествие всех времён — жизнь, полную любви, приключений и бесконечного счастья со мной.',
+      'magic.letter.p2':    'Твой семестр начинается немедленно и продлится вечно. Тебя ждут самые удивительные места вместе с твоим любимым человеком (мной, очевидно).',
+      'magic.letter.p3':    'Прилагаем все причины, почему ты удивительная:',
+      'magic.letter.l1':    'Твоя улыбка, которая освещает весь мой мир',
+      'magic.letter.l2':    'То, как ты делаешь всё лучше',
+      'magic.letter.l3':    'Как ты смеёшься над моими ужасными шутками',
+      'magic.letter.l4':    'Твоё прекрасное сердце и доброта',
+      'magic.letter.l5':    'Каждый момент с тобой',
+      'magic.letter.p4':    'Мы с нетерпением ждём твоего дальнейшего присутствия в моей жизни.',
+      'magic.letter.sign':  'Искренне твой, Твой маггл',
+      'magic.letter.ps':    'P.S. — Торжественно клянусь, что замышляю с тобой только хорошее. Всегда. ⚡',
+
+      'magic.draco.label': 'Твоя любимая',
+      'magic.draco.name':  'Арина Юдаева',
+      'magic.draco.house': 'Слизерин · Чистокровная',
+      'magic.draco.title': 'Девочка, которая мучает своего мужа',
+      'magic.draco.desc':  'Сложный, непонятый и один из самых захватывающих персонажей волшебного мира. За внешностью всегда скрывается гораздо больше, чем видит мир.',
+      'magic.draco.quote': '«Может, тебе нужно это заслужить.»',
+    };
+
+    Object.assign(translations.en, magicEn);
+    Object.assign(translations.ru, magicRu);
+    applyTranslations();
+
+    /* ── Sorting hat ── */
+    const hatBtn       = document.getElementById('hat-btn');
+    const hatContainer = document.getElementById('hat-container');
+    const houseReveal  = document.getElementById('house-reveal');
+
+    hatBtn.addEventListener('click', () => {
+      const hatImg = document.getElementById('hat-emoji');
+      hatContainer.classList.add('sorting');
+      hatImg.style.animation = 'hat-shake 0.6s ease infinite';
+      hatBtn.disabled = true;
+      hatBtn.style.opacity = '0.5';
+
+      setTimeout(() => {
+        hatContainer.classList.remove('sorting');
+        hatImg.style.animation = 'hat-float 4s ease-in-out infinite';
+        houseReveal.classList.add('show');
+        houseReveal.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        hatBtn.style.display = 'none';
+      }, 2200);
+    });
+
+    /* ── Envelope / Letter ── */
+    const envelopeWrap = document.getElementById('envelope-wrap');
+    const letterModal  = document.getElementById('letter-modal');
+    const letterClose  = document.getElementById('letter-close');
+    const letterCloseBottom = document.getElementById('letter-close-bottom');
+    const waxSeal      = document.querySelector('.wax-seal');
+
+    function openLetter() {
+      // Step 1: crack the seal
+      if (waxSeal) {
+        waxSeal.classList.add('cracking');
+        setTimeout(() => waxSeal.classList.remove('cracking'), 500);
+      }
+      // Step 2: open letter after brief delay
+      setTimeout(() => {
+        letterModal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        // Scroll modal to top
+        letterModal.scrollTop = 0;
+      }, 400);
+    }
+
+    function closeLetter() {
+      letterModal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    envelopeWrap.addEventListener('click', openLetter);
+    letterClose.addEventListener('click', closeLetter);
+    letterCloseBottom.addEventListener('click', closeLetter);
+
+    // Close on overlay click (clicking outside the paper)
+    letterModal.addEventListener('click', e => {
+      if (e.target === letterModal) closeLetter();
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && letterModal.classList.contains('open')) closeLetter();
+    });
+
+    /* ── Floating candles canvas ── */
+    const canvas = document.getElementById('magic-canvas');
+    const ctx    = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    const particles = [];
+    for (let i = 0; i < 60; i++) {
+      particles.push({
+        x:     Math.random() * window.innerWidth,
+        y:     Math.random() * window.innerHeight,
+        size:  Math.random() * 2.5 + 0.5,
+        speedY: -(Math.random() * 0.4 + 0.1),
+        speedX: (Math.random() - 0.5) * 0.2,
+        opacity: Math.random() * 0.5 + 0.1,
+        color: Math.random() > 0.5
+          ? `rgba(100,200,100,`
+          : `rgba(180,220,130,`,
+      });
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = p.color + p.opacity + ')';
+        ctx.fill();
+        p.y += p.speedY;
+        p.x += p.speedX;
+        p.opacity += (Math.random() - 0.5) * 0.02;
+        p.opacity = Math.max(0.05, Math.min(0.6, p.opacity));
+        if (p.y < -10) { p.y = canvas.height + 10; p.x = Math.random() * canvas.width; }
+      });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    /* ── Re-apply translations on lang toggle ── */
+    const origApply = applyTranslations;
+    applyTranslations = function() {
+      origApply();
+      Object.assign(translations.en, magicEn);
+      Object.assign(translations.ru, magicRu);
+    };
+  </script>
+</body>
+</html>

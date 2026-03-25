@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A & A — Gallery</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .gallery-hero {
+      padding-top: calc(var(--nav-height) + 4rem);
+      padding-bottom: 3rem;
+      text-align: center;
+    }
+
+    /* View toggle */
+    .view-toggle {
+      display: inline-flex;
+      background: rgba(255,255,255,0.8);
+      border: 1px solid rgba(242,196,206,0.6);
+      border-radius: 50px;
+      padding: 5px;
+      gap: 4px;
+      margin-top: 1.5rem;
+    }
+    .view-btn {
+      padding: 8px 22px;
+      border-radius: 50px;
+      border: none;
+      background: transparent;
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--plum);
+      cursor: pointer;
+      transition: var(--transition);
+      letter-spacing: 0.04em;
+    }
+    .view-btn.active {
+      background: var(--plum);
+      color: var(--cream);
+    }
+
+    /* Grid view */
+    .gallery-grid {
+      columns: 4 220px;
+      column-gap: 1rem;
+      padding: 0 2rem 4rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .gallery-item {
+      break-inside: avoid;
+      margin-bottom: 1rem;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      background: var(--blush-light);
+      border: 1px solid rgba(242,196,206,0.4);
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .gallery-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(122,92,127,0.15);
+    }
+
+    .gallery-item img {
+      width: 100%;
+      display: block;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .gallery-item:hover img { transform: scale(1.03); }
+
+    /* Placeholder for missing images */
+    .photo-placeholder {
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: linear-gradient(135deg, var(--blush-light), rgba(201,160,192,0.2));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      color: var(--mauve);
+      font-size: 2rem;
+    }
+    .photo-placeholder span {
+      font-size: 0.75rem;
+      font-family: var(--font-body);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      opacity: 0.6;
+    }
+
+    /* Vary placeholder heights for masonry feel */
+    .gallery-item:nth-child(3n+1) .photo-placeholder { aspect-ratio: 4/5; }
+    .gallery-item:nth-child(3n+2) .photo-placeholder { aspect-ratio: 3/4; }
+    .gallery-item:nth-child(3n)   .photo-placeholder { aspect-ratio: 1/1; }
+
+    .gallery-caption {
+      padding: 10px 14px 12px;
+    }
+    .gallery-caption .caption-title {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--plum-dark);
+      margin-bottom: 2px;
+    }
+    .gallery-caption .caption-date {
+      font-size: 0.75rem;
+      color: var(--mauve);
+      letter-spacing: 0.04em;
+    }
+
+    /* Hover overlay */
+    .gallery-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(44,26,46,0.7) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity var(--transition);
+      display: flex;
+      align-items: flex-end;
+      padding: 1rem;
+    }
+    .gallery-item:hover .gallery-overlay { opacity: 1; }
+    .gallery-overlay-text {
+      color: white;
+      font-size: 0.85rem;
+      font-family: var(--font-display);
+      font-style: italic;
+    }
+
+    /* ── Slideshow mode ── */
+    .slideshow-view {
+      display: none;
+      position: relative;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 2rem 4rem;
+    }
+    .slideshow-view.active { display: block; }
+    .gallery-grid-wrap.hidden { display: none; }
+
+    .slideshow-stage {
+      position: relative;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: var(--blush-light);
+      aspect-ratio: 4/3;
+      border: 1px solid rgba(242,196,206,0.5);
+      margin-bottom: 1.5rem;
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      height: 100%;
+    }
+    .slide.active { display: flex; align-items: center; justify-content: center; }
+
+    .slide-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      background: linear-gradient(135deg, var(--blush-light), rgba(201,160,192,0.2));
+      color: var(--mauve);
+      font-size: 4rem;
+    }
+
+    .slide-placeholder p {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-style: italic;
+      color: var(--plum);
+      opacity: 0.7;
+    }
+
+    .slideshow-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .slide-btn {
+      padding: 10px 24px;
+      border-radius: 50px;
+      border: 1.5px solid var(--mauve);
+      background: transparent;
+      color: var(--plum);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .slide-btn:hover { background: var(--blush-light); }
+
+    .slide-counter {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      color: var(--plum);
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .slide-caption {
+      text-align: center;
+    }
+    .slide-caption .caption-title {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--plum-dark);
+      margin-bottom: 0.25rem;
+    }
+    .slide-caption .caption-text {
+      font-size: 0.9rem;
+      color: var(--plum);
+      font-style: italic;
+    }
+    .slide-caption .caption-date {
+      font-size: 0.8rem;
+      color: var(--mauve);
+      margin-top: 0.25rem;
+    }
+
+    /* Dots */
+    .slide-dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--blush);
+      cursor: pointer;
+      transition: var(--transition);
+      border: none;
+      padding: 0;
+    }
+    .dot.active {
+      background: var(--plum);
+      transform: scale(1.3);
+    }
+
+    /* ── Lightbox ── */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(44,26,46,0.95);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      animation: fadeIn 0.3s ease;
+    }
+    .lightbox.open { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .lightbox-inner {
+      max-width: 900px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .lightbox-img-wrap {
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: rgba(255,255,255,0.05);
+      margin-bottom: 1.25rem;
+      aspect-ratio: 4/3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lightbox-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      color: rgba(242,196,206,0.5);
+      font-size: 5rem;
+    }
+
+    .lightbox-caption { color: var(--cream); }
+    .lightbox-caption .caption-title {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-style: italic;
+      margin-bottom: 0.25rem;
+    }
+    .lightbox-caption .caption-text {
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
+    .lightbox-caption .caption-date {
+      font-size: 0.8rem;
+      color: var(--gold);
+      margin-top: 0.25rem;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .lightbox-close:hover { background: rgba(255,255,255,0.2); }
+
+    .lightbox-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+
+    @media (max-width: 768px) {
+      .gallery-grid { columns: 2 160px; padding: 0 1.25rem 3rem; }
+    }
+    @media (max-width: 480px) {
+      .gallery-grid { columns: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="petal-container"></div>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">A <span>&</span> A</a>
+    <ul class="nav-links">
+      <li><a href="index.html"    data-i18n="nav.home">Home</a></li>
+      <li><a href="timeline.html" data-i18n="nav.timeline">Timeline</a></li>
+      <li><a href="gallery.html"  data-i18n="nav.gallery">Gallery</a></li>
+      <li><a href="videos.html"   data-i18n="nav.videos">Videos</a></li>
+      <li><a href="story.html"    data-i18n="nav.story">Our Story</a></li>
+      <li><a href="trips.html"    data-i18n="nav.trips">Trips</a></li>
+      <li><a href="magic.html"    data-i18n="nav.magic">Magic</a></li>
+      <li><a href="private.html"  data-i18n="nav.private">Private</a></li>
+    </ul>
+    <button class="lang-toggle"><span class="flag">🌸</span><span class="lang-label">RU</span></button>
+    <button class="hamburger"><span></span><span></span><span></span></button>
+  </nav>
+  <div class="nav-drawer">
+    <a href="index.html"    data-i18n="nav.home">Home</a>
+    <a href="timeline.html" data-i18n="nav.timeline">Timeline</a>
+    <a href="gallery.html"  data-i18n="nav.gallery">Gallery</a>
+    <a href="videos.html"   data-i18n="nav.videos">Videos</a>
+    <a href="story.html"    data-i18n="nav.story">Our Story</a>
+    <a href="trips.html"    data-i18n="nav.trips">Trips</a>
+    <a href="magic.html"    data-i18n="nav.magic">Magic</a>
+    <a href="private.html"  data-i18n="nav.private">Private</a>
+    <button class="lang-toggle" style="align-self:flex-start"><span class="flag">🌸</span><span class="lang-label">RU</span></button>
+  </div>
+
+  <!-- Hero -->
+  <div class="gallery-hero container-sm">
+    <span class="section-label fade-in" data-i18n="gallery.label">Our memories</span>
+    <h1 class="section-title fade-in delay-1" data-i18n="gallery.title">Photo gallery</h1>
+    <p class="section-subtitle fade-in delay-2" style="margin:0 auto" data-i18n="gallery.subtitle">
+      Every picture tells our story. Click any photo to open it, or hit slideshow to watch them all.
+    </p>
+    <div class="view-toggle fade-in delay-3">
+      <button class="view-btn active" id="btn-grid"      data-i18n="gallery.grid">Grid</button>
+      <button class="view-btn"        id="btn-slideshow" data-i18n="gallery.slideshow">Slideshow</button>
+    </div>
+  </div>
+
+  <!-- Grid view -->
+  <div class="gallery-grid-wrap" id="grid-wrap">
+    <div class="gallery-grid" id="gallery-grid"></div>
+  </div>
+
+  <!-- Slideshow view -->
+  <div class="slideshow-view" id="slideshow-view">
+    <div class="slideshow-stage" id="slideshow-stage"></div>
+    <div class="slideshow-nav">
+      <button class="slide-btn" id="prev-btn" data-i18n="gallery.prev">← Prev</button>
+      <div class="slide-counter" id="slide-counter">1 of 20</div>
+      <button class="slide-btn" id="next-btn" data-i18n="gallery.next">Next →</button>
+    </div>
+    <div class="slide-caption" id="slide-caption"></div>
+    <div class="slide-dots" id="slide-dots"></div>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lb-close">✕</button>
+    <div class="lightbox-inner">
+      <div class="lightbox-img-wrap" id="lb-img-wrap"></div>
+      <div class="lightbox-caption" id="lb-caption"></div>
+      <div class="lightbox-nav">
+        <button class="slide-btn" id="lb-prev" data-i18n="gallery.prev">← Prev</button>
+        <button class="slide-btn" id="lb-next" data-i18n="gallery.next">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-logo">A <span>&</span> A</div>
+      <p data-i18n="footer.tagline">Made with love, for you.</p>
+      <p data-i18n="footer.copy">© 2025 · Always yours</p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script>
+    // ── Photo data — replace src with real image paths when ready ──
+    const photos = [
+      { src: '', title: 'Our beginning',         titleRu: 'Наше начало',          date: 'March 2025',    caption: 'The very first chapter of us.',               captionRu: 'Самая первая глава нас.' },
+      { src: '', title: 'A perfect day',          titleRu: 'Идеальный день',       date: 'March 2025',    caption: 'Every day with you feels like this.',         captionRu: 'Каждый день с тобой ощущается вот так.' },
+      { src: '', title: 'Somewhere beautiful',    titleRu: 'Красивое место',       date: 'April 2025',    caption: 'You make every place magical.',               captionRu: 'Ты делаешь каждое место волшебным.' },
+      { src: '', title: 'Just us',                titleRu: 'Только мы',            date: 'April 2025',    caption: 'My favorite two-person universe.',            captionRu: 'Моя любимая вселенная на двоих.' },
+      { src: '', title: 'Golden hour',            titleRu: 'Золотой час',          date: 'May 2025',      caption: 'You glow even more than the sunset.',         captionRu: 'Ты сияешь ярче заката.' },
+      { src: '', title: 'Laughing together',      titleRu: 'Смеёмся вместе',       date: 'May 2025',      caption: 'I live for your laugh.',                      captionRu: 'Я живу ради твоего смеха.' },
+      { src: '', title: 'A quiet moment',         titleRu: 'Тихий момент',         date: 'June 2025',     caption: 'Still. Perfect. Us.',                         captionRu: 'Тихо. Идеально. Мы.' },
+      { src: '', title: 'Out and about',          titleRu: 'Прогулка',             date: 'June 2025',     caption: 'Wherever we go, it becomes our place.',       captionRu: 'Куда бы мы ни пошли, это становится нашим местом.' },
+      { src: '', title: 'A beautiful surprise',   titleRu: 'Красивый сюрприз',     date: 'July 2025',     caption: 'You are always surprising me.',               captionRu: 'Ты всегда меня удивляешь.' },
+      { src: '', title: 'Summer days',            titleRu: 'Летние дни',           date: 'July 2025',     caption: 'Summer tastes better with you.',              captionRu: 'Лето вкуснее, когда ты рядом.' },
+      { src: '', title: 'City lights',            titleRu: 'Городские огни',       date: 'August 2025',   caption: 'The whole city lit up just for us.',          captionRu: 'Весь город светился только для нас.' },
+      { src: '', title: 'Morning light',          titleRu: 'Утренний свет',        date: 'August 2025',   caption: 'My favorite way to start a day.',             captionRu: 'Мой любимый способ начать день.' },
+      { src: '', title: 'Us, always',             titleRu: 'Мы, всегда',           date: 'September 2025','caption': 'Always us.',                               captionRu: 'Всегда мы.' },
+      { src: '', title: 'A little adventure',     titleRu: 'Маленькое приключение',date: 'September 2025','caption': 'Every outing is an adventure with you.',   captionRu: 'Каждая прогулка — приключение с тобой.' },
+      { src: '', title: 'Holding on',             titleRu: 'Держась вместе',       date: 'October 2025',  caption: 'I never want to let go.',                     captionRu: 'Я никогда не хочу отпускать.' },
+      { src: '', title: 'Autumn together',        titleRu: 'Осень вместе',         date: 'October 2025',  caption: 'Falling for you, every season.',              captionRu: 'Влюбляюсь в тебя каждый сезон.' },
+      { src: '', title: 'Cozy nights',            titleRu: 'Уютные вечера',        date: 'November 2025', caption: 'Home is wherever you are.',                   captionRu: 'Дом там, где ты.' },
+      { src: '', title: 'Just smiling',           titleRu: 'Просто улыбаемся',     date: 'December 2025', caption: 'You are my reason to smile.',                 captionRu: 'Ты — моя причина улыбаться.' },
+      { src: '', title: 'New year, same love',    titleRu: 'Новый год, та же любовь',date:'January 2026', caption: 'Every year better with you.',                 captionRu: 'Каждый год лучше с тобой.' },
+      { src: '', title: 'Always & forever',       titleRu: 'Всегда и навсегда',    date: 'February 2026', caption: 'My favorite person, always.',                 captionRu: 'Мой любимый человек, всегда.' },
+    ];
+
+    const grid        = document.getElementById('gallery-grid');
+    const stage       = document.getElementById('slideshow-stage');
+    const dotsWrap    = document.getElementById('slide-dots');
+    const slideCapEl  = document.getElementById('slide-caption');
+    const counterEl   = document.getElementById('slide-counter');
+    const lightbox    = document.getElementById('lightbox');
+    const lbImgWrap   = document.getElementById('lb-img-wrap');
+    const lbCaption   = document.getElementById('lb-caption');
+
+    let currentSlide  = 0;
+    let currentLb     = 0;
+
+    function getLang() { return localStorage.getItem('lang') || 'en'; }
+
+    function buildGrid() {
+      grid.innerHTML = '';
+      photos.forEach((p, i) => {
+        const item = document.createElement('div');
+        item.className = 'gallery-item fade-in';
+        item.style.transitionDelay = (i % 8 * 0.06) + 's';
+        const title = getLang() === 'ru' ? p.titleRu : p.title;
+        const date  = localizeDate(p.date);
+        item.innerHTML = `
+          <div class="photo-placeholder">🌸<span>photo ${i+1}</span></div>
+          <div class="gallery-overlay"><span class="gallery-overlay-text">${title}</span></div>
+          <div class="gallery-caption">
+            <div class="caption-title">${title}</div>
+            <div class="caption-date">${date}</div>
+          </div>`;
+        item.addEventListener('click', () => openLightbox(i));
+        grid.appendChild(item);
+      });
+      // re-trigger scroll observer
+      document.querySelectorAll('.fade-in').forEach(el => {
+        if (!el.classList.contains('visible')) observer.observe(el);
+      });
+    }
+
+    function buildSlideshow() {
+      stage.innerHTML = '';
+      dotsWrap.innerHTML = '';
+      photos.forEach((p, i) => {
+        const slide = document.createElement('div');
+        slide.className = 'slide' + (i === 0 ? ' active' : '');
+        slide.innerHTML = `<div class="slide-placeholder">🌸<p>${getLang() === 'ru' ? p.titleRu : p.title}</p></div>`;
+        stage.appendChild(slide);
+        const dot = document.createElement('button');
+        dot.className = 'dot' + (i === 0 ? ' active' : '');
+        dot.addEventListener('click', () => goToSlide(i));
+        dotsWrap.appendChild(dot);
+      });
+      updateSlideCaption();
+      updateSlideCounter();
+    }
+
+    function updateSlideCaption() {
+      const p = photos[currentSlide];
+      const lang = getLang();
+      slideCapEl.innerHTML = `
+        <div class="caption-title">${lang === 'ru' ? p.titleRu : p.title}</div>
+        <div class="caption-text">${lang === 'ru' ? p.captionRu : p.caption}</div>
+        <div class="caption-date">${localizeDate(p.date)}</div>`;
+    }
+
+    function updateSlideCounter() {
+      const ofWord = getLang() === 'ru' ? 'из' : 'of';
+      counterEl.textContent = `${currentSlide + 1} ${ofWord} ${photos.length}`;
+    }
+
+    function goToSlide(n) {
+      const slides = stage.querySelectorAll('.slide');
+      const dots   = dotsWrap.querySelectorAll('.dot');
+      slides[currentSlide].classList.remove('active');
+      dots[currentSlide].classList.remove('active');
+      currentSlide = (n + photos.length) % photos.length;
+      slides[currentSlide].classList.add('active');
+      dots[currentSlide].classList.add('active');
+      updateSlideCaption();
+      updateSlideCounter();
+    }
+
+    document.getElementById('prev-btn').addEventListener('click', () => goToSlide(currentSlide - 1));
+    document.getElementById('next-btn').addEventListener('click', () => goToSlide(currentSlide + 1));
+
+    // Keyboard navigation
+    document.addEventListener('keydown', e => {
+      if (lightbox.classList.contains('open')) {
+        if (e.key === 'ArrowLeft')  moveLightbox(-1);
+        if (e.key === 'ArrowRight') moveLightbox(1);
+        if (e.key === 'Escape')     closeLightbox();
+      } else {
+        if (e.key === 'ArrowLeft')  goToSlide(currentSlide - 1);
+        if (e.key === 'ArrowRight') goToSlide(currentSlide + 1);
+      }
+    });
+
+    // Lightbox
+    function openLightbox(i) {
+      currentLb = i;
+      updateLightbox();
+      lightbox.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      lightbox.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function moveLightbox(dir) {
+      currentLb = (currentLb + dir + photos.length) % photos.length;
+      updateLightbox();
+    }
+
+    function updateLightbox() {
+      const p = photos[currentLb];
+      const lang = getLang();
+      lbImgWrap.innerHTML = `<div class="lightbox-placeholder">🌸</div>`;
+      lbCaption.innerHTML = `
+        <div class="caption-title">${lang === 'ru' ? p.titleRu : p.title}</div>
+        <div class="caption-text">${lang === 'ru' ? p.captionRu : p.caption}</div>
+        <div class="caption-date">${localizeDate(p.date)}</div>`;
+    }
+
+    document.getElementById('lb-close').addEventListener('click', closeLightbox);
+    document.getElementById('lb-prev').addEventListener('click', () => moveLightbox(-1));
+    document.getElementById('lb-next').addEventListener('click', () => moveLightbox(1));
+    lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+
+    // View toggle
+    const gridWrap      = document.getElementById('grid-wrap');
+    const slideshowView = document.getElementById('slideshow-view');
+    const btnGrid       = document.getElementById('btn-grid');
+    const btnSlideshow  = document.getElementById('btn-slideshow');
+
+    btnGrid.addEventListener('click', () => {
+      gridWrap.classList.remove('hidden');
+      slideshowView.classList.remove('active');
+      btnGrid.classList.add('active');
+      btnSlideshow.classList.remove('active');
+    });
+
+    btnSlideshow.addEventListener('click', () => {
+      gridWrap.classList.add('hidden');
+      slideshowView.classList.add('active');
+      btnSlideshow.classList.add('active');
+      btnGrid.classList.remove('active');
+      buildSlideshow();
+    });
+
+    // Scroll observer for fade-in
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+
+    // Build on load
+    buildGrid();
+
+    // Rebuild grid and slideshow when language toggles
+    const _origToggleGallery = toggleLanguage;
+    toggleLanguage = function() {
+      _origToggleGallery();
+      buildGrid();
+      if (slideshowView.classList.contains('active')) buildSlideshow();
+    };
+  </script>
+</body>
+</html>

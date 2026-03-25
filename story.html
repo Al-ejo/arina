@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A & A ✦ Our Story</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+
+    /* ── Section 1 — Hero ── */
+    .story-hero {
+      padding-top: calc(var(--nav-height) + 5rem);
+      padding-bottom: 4rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .story-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 60% 20%, rgba(242,196,206,0.45) 0%, transparent 60%),
+        radial-gradient(ellipse at 20% 80%, rgba(201,160,192,0.2) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .story-names {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 700;
+      color: var(--plum-dark);
+      letter-spacing: -0.03em;
+      line-height: 1;
+      position: relative;
+      z-index: 1;
+    }
+
+    .story-names em {
+      color: var(--mauve);
+      font-style: italic;
+    }
+
+    .story-hero-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin: 2rem auto;
+      max-width: 300px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .story-hero-divider::before,
+    .story-hero-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--blush), transparent);
+    }
+
+    .story-hero-divider span {
+      color: var(--mauve);
+      font-size: 1rem;
+    }
+
+    /* ── Section 2 — How it started ── */
+    .story-start {
+      padding: 6rem 0;
+      background: var(--cream);
+    }
+
+    .story-start-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .story-start-text {}
+
+    .story-start-date {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.25rem;
+      display: block;
+      font-weight: 500;
+    }
+
+    .story-pull-quote {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 700;
+      color: var(--plum-dark);
+      line-height: 1.25;
+      margin-bottom: 1.75rem;
+      letter-spacing: -0.01em;
+    }
+
+    .story-pull-quote em {
+      color: var(--mauve);
+      font-style: italic;
+    }
+
+    .story-body-text {
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      color: var(--plum);
+      line-height: 1.9;
+      font-style: italic;
+    }
+
+    /* Photo slot */
+    .story-photo-slot {
+      aspect-ratio: 3/4;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--blush-light), rgba(201,160,192,0.2));
+      border: 1px solid rgba(242,196,206,0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      color: var(--mauve);
+    }
+
+    .story-photo-slot img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+
+    .story-photo-slot .ph-icon  { font-size: 3rem; opacity: 0.4; }
+    .story-photo-slot .ph-label {
+      font-size: 0.72rem; letter-spacing: 0.1em;
+      text-transform: uppercase; opacity: 0.5;
+    }
+
+    /* ── Section 3 — Memory strip ── */
+    .memory-section {
+      padding: 6rem 0;
+      background: var(--cream-dark);
+      overflow: hidden;
+    }
+
+    .memory-header {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding: 0 2rem;
+    }
+
+    .memory-strip-wrap {
+      position: relative;
+    }
+
+    .memory-strip {
+      display: flex;
+      gap: 1.25rem;
+      overflow-x: auto;
+      padding: 1rem 2rem 2rem;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: var(--blush) transparent;
+      cursor: grab;
+    }
+
+    .memory-strip:active { cursor: grabbing; }
+    .memory-strip::-webkit-scrollbar { height: 4px; }
+    .memory-strip::-webkit-scrollbar-thumb { background: var(--blush); border-radius: 2px; }
+
+    .memory-card {
+      flex: 0 0 280px;
+      scroll-snap-align: start;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid rgba(242,196,206,0.5);
+      background: #fff;
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+
+    .memory-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 48px rgba(122,92,127,0.13);
+    }
+
+    /* Unique top color per card */
+    .memory-card:nth-child(1) .memory-card-top { background: linear-gradient(135deg, #FAE8EC, #F2C4CE); }
+    .memory-card:nth-child(2) .memory-card-top { background: linear-gradient(135deg, #EDE0F5, #C9A0C0); }
+    .memory-card:nth-child(3) .memory-card-top { background: linear-gradient(135deg, #FDF0DC, #D4AF6A); }
+    .memory-card:nth-child(4) .memory-card-top { background: linear-gradient(135deg, #E0EDF5, #7AA0C9); }
+    .memory-card:nth-child(5) .memory-card-top { background: linear-gradient(135deg, #E5F5E0, #7EC8A0); }
+    .memory-card:nth-child(6) .memory-card-top { background: linear-gradient(135deg, #F5E5E0, #C97A7A); }
+
+    .memory-card-top {
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+
+    .memory-card-body {
+      padding: 1.25rem;
+    }
+
+    .memory-card-date {
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mauve);
+      margin-bottom: 0.4rem;
+      font-weight: 500;
+    }
+
+    .memory-card-title {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--plum-dark);
+      margin-bottom: 0.4rem;
+    }
+
+    .memory-card-caption {
+      font-size: 0.85rem;
+      color: var(--plum);
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    /* Drag hint */
+    .memory-drag-hint {
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--mauve);
+      letter-spacing: 0.08em;
+      opacity: 0.6;
+      margin-top: 0.5rem;
+    }
+
+    /* ── Section 4 — Places ── */
+    .places-section {
+      padding: 6rem 0;
+      background: var(--cream);
+    }
+
+    .places-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .places-header {
+      margin-bottom: 4rem;
+    }
+
+    .place-row {
+      display: grid;
+      grid-template-columns: 80px 1fr auto;
+      align-items: baseline;
+      gap: 2rem;
+      padding: 2.5rem 0;
+      border-bottom: 1px solid rgba(242,196,206,0.4);
+      transition: background var(--transition);
+    }
+
+    .place-row:first-of-type { border-top: 1px solid rgba(242,196,206,0.4); }
+
+    .place-row:hover { background: rgba(242,196,206,0.08); }
+
+    .place-number {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      color: var(--mauve);
+      font-weight: 400;
+      opacity: 0.6;
+    }
+
+    .place-name {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+      font-weight: 700;
+      color: var(--plum-dark);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .place-name span {
+      display: block;
+      font-size: 0.75rem;
+      font-family: var(--font-body);
+      font-weight: 400;
+      color: var(--mauve);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-top: 0.4rem;
+    }
+
+    .place-caption {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 0.95rem;
+      color: var(--plum);
+      max-width: 280px;
+      text-align: right;
+      line-height: 1.6;
+    }
+
+    /* ── Section 5 — Things I love ── */
+    .love-section {
+      padding: 6rem 0;
+      background: var(--plum-dark);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .love-section::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse at 30% 50%, rgba(201,160,192,0.1) 0%, transparent 60%),
+        radial-gradient(ellipse at 70% 50%, rgba(212,175,106,0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .love-inner {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .love-header {
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+
+    .love-header .section-label { color: var(--gold); }
+
+    .love-header h2 {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      color: var(--cream);
+    }
+
+    .love-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .love-item {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      padding: 1.5rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      opacity: 0;
+      transform: translateX(-20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .love-item.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .love-item:last-child { border-bottom: none; }
+
+    .love-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--mauve);
+      flex-shrink: 0;
+      opacity: 0.7;
+    }
+
+    .love-text {
+      font-family: var(--font-serif);
+      font-size: 1.2rem;
+      font-style: italic;
+      color: rgba(253,246,240,0.85);
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    .love-text em {
+      color: var(--gold);
+      font-style: normal;
+    }
+
+    /* ── Section 6 — Closing banner ── */
+    .closing-banner {
+      background: var(--plum-dark);
+      border-top: 1px solid rgba(242,196,206,0.1);
+      padding: 5rem 0;
+      text-align: center;
+      position: relative;
+    }
+
+    .closing-banner::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 50%, rgba(242,196,206,0.08) 0%, transparent 70%);
+    }
+
+    .closing-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .closing-quote-mark {
+      font-family: var(--font-display);
+      font-size: 5rem;
+      color: var(--mauve);
+      opacity: 0.3;
+      line-height: 0.5;
+      display: block;
+      margin-bottom: 1.5rem;
+    }
+
+    .closing-text {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 4vw, 2.6rem);
+      font-style: italic;
+      color: var(--cream);
+      line-height: 1.4;
+      font-weight: 500;
+    }
+
+    .closing-text em { color: var(--gold); font-style: normal; }
+
+    .closing-sign {
+      display: block;
+      margin-top: 2rem;
+      font-size: 0.85rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mauve);
+      opacity: 0.6;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 800px) {
+      .story-start-inner {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+      }
+      .story-photo-slot { aspect-ratio: 4/3; }
+
+      .place-row {
+        grid-template-columns: 50px 1fr;
+        gap: 1rem;
+      }
+      .place-caption { display: none; }
+    }
+
+    @media (max-width: 600px) {
+      .story-names { font-size: 2.6rem; }
+      .memory-card { flex: 0 0 240px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="petal-container"></div>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">A <span>&</span> A</a>
+    <ul class="nav-links">
+      <li><a href="index.html"    data-i18n="nav.home">Home</a></li>
+      <li><a href="timeline.html" data-i18n="nav.timeline">Timeline</a></li>
+      <li><a href="gallery.html"  data-i18n="nav.gallery">Gallery</a></li>
+      <li><a href="videos.html"   data-i18n="nav.videos">Videos</a></li>
+      <li><a href="story.html"    data-i18n="nav.story">Our Story</a></li>
+      <li><a href="trips.html"    data-i18n="nav.trips">Trips</a></li>
+      <li><a href="magic.html"    data-i18n="nav.magic">Magic</a></li>
+      <li><a href="private.html"  data-i18n="nav.private">Private</a></li>
+    </ul>
+    <button class="lang-toggle"><span class="flag">🌸</span><span class="lang-label">RU</span></button>
+    <button class="hamburger"><span></span><span></span><span></span></button>
+  </nav>
+  <div class="nav-drawer">
+    <a href="index.html"    data-i18n="nav.home">Home</a>
+    <a href="timeline.html" data-i18n="nav.timeline">Timeline</a>
+    <a href="gallery.html"  data-i18n="nav.gallery">Gallery</a>
+    <a href="videos.html"   data-i18n="nav.videos">Videos</a>
+    <a href="story.html"    data-i18n="nav.story">Our Story</a>
+    <a href="trips.html"    data-i18n="nav.trips">Trips</a>
+    <a href="magic.html"    data-i18n="nav.magic">Magic</a>
+    <a href="private.html"  data-i18n="nav.private">Private</a>
+    <button class="lang-toggle" style="align-self:flex-start"><span class="flag">🌸</span><span class="lang-label">RU</span></button>
+  </div>
+
+  <!-- ── Section 1 — Hero ── -->
+  <section class="story-hero">
+    <h1 class="story-names fade-in" id="story-hero-title">
+      🪱 <em>Two little worms</em> 🪱
+    </h1>
+    <div class="story-hero-divider fade-in delay-1">
+      <span>✦</span>
+    </div>
+  </section>
+
+  <!-- ── Section 2 — How it started ── -->
+  <section class="story-start">
+    <div class="story-start-inner">
+      <div class="story-start-text fade-in-left">
+        <span class="story-start-date" data-i18n="story.start.date">October 22, 2025 · Istanbul, Turkey</span>
+        <div class="story-pull-quote" data-i18n="story.start.quote">
+          Two people. One city.<br/><em>Neither of us saw it coming.</em>
+        </div>
+        <p class="story-body-text" data-i18n="story.start.body">
+          It started in Istanbul — a city of bridges between worlds. We met for the first time, nervous and full of butterflies, in a place neither of us calls home. And somehow, in the middle of all that unfamiliarity, everything felt exactly right. That was the moment the story began.
+        </p>
+      </div>
+      <div class="story-photo-slot fade-in-right">
+        <!-- To add photo: replace contents with <img src="images/istanbul.jpg" alt="Istanbul" /> -->
+        <span class="ph-icon">🕌</span>
+        <span class="ph-label" data-i18n="story.photo.coming">photo coming</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Section 3 — Memory strip ── -->
+  <section class="memory-section">
+    <div class="memory-header">
+      <span class="section-label fade-in" data-i18n="story.memories.label">Our favorite moments</span>
+      <h2 class="section-title fade-in delay-1" data-i18n="story.memories.title">The ones we'll never forget</h2>
+    </div>
+
+    <div class="memory-strip-wrap">
+      <div class="memory-strip" id="memory-strip">
+
+        <!-- Memory 1 -->
+        <div class="memory-card">
+          <div class="memory-card-top">🌸</div>
+          <div class="memory-card-body">
+            <div class="memory-card-date" data-i18n="story.mem1.date">October 2025</div>
+            <div class="memory-card-title" data-i18n="story.mem1.title">The first moment</div>
+            <div class="memory-card-caption" data-i18n="story.mem1.caption">A memory we will fill in together.</div>
+          </div>
+        </div>
+
+        <!-- Memory 2 -->
+        <div class="memory-card">
+          <div class="memory-card-top">✨</div>
+          <div class="memory-card-body">
+            <div class="memory-card-date" data-i18n="story.mem2.date">Coming soon</div>
+            <div class="memory-card-title" data-i18n="story.mem2.title">A moment to remember</div>
+            <div class="memory-card-caption" data-i18n="story.mem2.caption">A memory we will fill in together.</div>
+          </div>
+        </div>
+
+        <!-- Memory 3 -->
+        <div class="memory-card">
+          <div class="memory-card-top">🌙</div>
+          <div class="memory-card-body">
+            <div class="memory-card-date" data-i18n="story.mem3.date">Coming soon</div>
+            <div class="memory-card-title" data-i18n="story.mem3.title">A night to remember</div>
+            <div class="memory-card-caption" data-i18n="story.mem3.caption">A memory we will fill in together.</div>
+          </div>
+        </div>
+
+        <!-- Memory 4 -->
+        <div class="memory-card">
+          <div class="memory-card-top">☀️</div>
+          <div class="memory-card-body">
+            <div class="memory-card-date" data-i18n="story.mem4.date">Coming soon</div>
+            <div class="memory-card-title" data-i18n="story.mem4.title">A perfect day</div>
+            <div class="memory-card-caption" data-i18n="story.mem4.caption">A memory we will fill in together.</div>
+          </div>
+        </div>
+
+        <!-- Memory 5 -->
+        <div class="memory-card">
+          <div class="memory-card-top">🎶</div>
+          <div class="memory-card-body">
+            <div class="memory-card-date" data-i18n="story.mem5.date">Coming soon</div>
+            <div class="memory-card-title" data-i18n="story.mem5.title">Our song moment</div>
+            <div class="memory-card-caption" data-i18n="story.mem5.caption">A memory we will fill in together.</div>
+          </div>
+        </div>
+
+        <!-- Memory 6 -->
+        <div class="memory-card">
+          <div class="memory-card-top">💫</div>
+          <div class="memory-card-body">
+            <div class="memory-card-date" data-i18n="story.mem6.date">Coming soon</div>
+            <div class="memory-card-title" data-i18n="story.mem6.title">Just us</div>
+            <div class="memory-card-caption" data-i18n="story.mem6.caption">A memory we will fill in together.</div>
+          </div>
+        </div>
+
+      </div>
+      <p class="memory-drag-hint" data-i18n="story.drag">← drag to explore →</p>
+    </div>
+  </section>
+
+  <!-- ── Section 4 — Places ── -->
+  <section class="places-section">
+    <div class="places-inner">
+      <div class="places-header fade-in">
+        <span class="section-label" data-i18n="story.places.label">Places that are ours</span>
+        <h2 class="section-title" data-i18n="story.places.title">Where we've been</h2>
+      </div>
+
+      <div class="place-row fade-in">
+        <div class="place-number">01</div>
+        <div class="place-name">
+          Istanbul
+          <span data-i18n="story.place1.country">Turkey · October 2025</span>
+        </div>
+        <div class="place-caption" data-i18n="story.place1.caption">
+          Where it all began. The city that started everything.
+        </div>
+      </div>
+
+      <div class="place-row fade-in delay-1">
+        <div class="place-number">02</div>
+        <div class="place-name">
+          Tbilisi
+          <span data-i18n="story.place2.country">Georgia · January 2026</span>
+        </div>
+        <div class="place-caption" data-i18n="story.place2.caption">
+          The city where we finally stopped pretending.
+        </div>
+      </div>
+
+      <div class="place-row fade-in delay-2">
+        <div class="place-number">03</div>
+        <div class="place-name">
+          Kolomna
+          <span data-i18n="story.place3.country">Russia · March 2026</span>
+        </div>
+        <div class="place-caption" data-i18n="story.place3.caption">
+          Her home. The next step toward our life together.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Section 5 — Things I love about her ── -->
+  <section class="love-section">
+    <div class="love-inner">
+      <div class="love-header fade-in">
+        <span class="section-label" data-i18n="story.love.label">From Andrés, to Arina</span>
+        <h2 data-i18n="story.love.title">What I love about you</h2>
+      </div>
+
+      <ul class="love-list">
+        <li class="love-item">
+          <div class="love-dot"></div>
+          <div class="love-text" data-i18n="story.love.1">How <em>caring</em> you are — it shows in everything you do.</div>
+        </li>
+        <li class="love-item">
+          <div class="love-dot"></div>
+          <div class="love-text" data-i18n="story.love.2">How <em>understanding</em> you are — you never make me feel judged.</div>
+        </li>
+        <li class="love-item">
+          <div class="love-dot"></div>
+          <div class="love-text" data-i18n="story.love.3">That you are <em>always there for me</em> — no matter what, no matter when.</div>
+        </li>
+        <li class="love-item">
+          <div class="love-dot"></div>
+          <div class="love-text" data-i18n="story.love.4">The <em>support you give</em> — even across the distance, I always feel it.</div>
+        </li>
+        <li class="love-item">
+          <div class="love-dot"></div>
+          <div class="love-text" data-i18n="story.love.5">How <em>funny</em> you are — you always have me laughing without even trying.</div>
+        </li>
+        <li class="love-item">
+          <div class="love-dot"></div>
+          <div class="love-text" data-i18n="story.love.6">How <em>calm and relaxed</em> everything feels when we're together — where you can just be yourself, my little baby.</div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── AI Love Letter Generator ── -->
+  <section style="padding:5rem 0;background:var(--cream)">
+    <div class="container-sm" style="text-align:center">
+      <span class="section-label fade-in" data-i18n="ai.section.label">From Andrés, fresh every time</span>
+      <h2 class="section-title fade-in delay-1" data-i18n="ai.section.title">A message just for you</h2>
+      <p class="section-subtitle fade-in delay-2" style="margin:0 auto 2.5rem" data-i18n="ai.section.desc">
+        Every time you press this button, something new is written — just for you, just for this moment.
+      </p>
+
+      <button id="ai-love-btn" class="btn btn-primary fade-in delay-3" data-i18n="ai.btn">
+        Write me something ✦
+      </button>
+
+      <!-- Loading -->
+      <div id="ai-love-loading" style="display:none;justify-content:center;align-items:center;gap:0.75rem;margin-top:2rem;color:var(--mauve)">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--mauve);animation:dot-pulse 1.2s ease-in-out infinite"></div>
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--mauve);animation:dot-pulse 1.2s ease-in-out 0.2s infinite"></div>
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--mauve);animation:dot-pulse 1.2s ease-in-out 0.4s infinite"></div>
+        <span id="ai-loading-text" style="font-style:italic;font-size:0.9rem" data-i18n="ai.loading">Writing something just for you...</span>
+      </div>
+
+      <!-- Output -->
+      <div id="ai-love-output" style="display:none;margin-top:2rem;max-width:600px;margin-left:auto;margin-right:auto">
+        <div style="
+          background:#fff;
+          border-radius:var(--radius-lg);
+          border:1px solid rgba(242,196,206,0.5);
+          padding:2.5rem;
+          position:relative;
+        ">
+          <span style="
+            font-family:var(--font-display);
+            font-size:4rem;color:var(--blush);
+            line-height:0.5;display:block;
+            margin-bottom:1rem;opacity:0.6
+          ">"</span>
+          <p class="ai-text" style="
+            font-family:var(--font-serif);
+            font-style:italic;
+            font-size:1.1rem;
+            color:var(--plum);
+            line-height:1.9;
+            margin:0;
+          "></p>
+          <div style="
+            margin-top:1.25rem;
+            font-size:0.78rem;
+            letter-spacing:0.1em;
+            text-transform:uppercase;
+            color:var(--mauve);
+            opacity:0.6;
+          ">— Andrés ✦</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Closing banner ── -->
+  <section class="closing-banner">
+    <div class="closing-inner fade-in">
+      <span class="closing-quote-mark">"</span>
+      <div class="closing-text" data-i18n="story.closing">
+        You are so awesome, and I always want to <em>eat your face</em> :3
+      </div>
+      <span class="closing-sign" data-i18n="story.closing.sign">— Andrés, always</span>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-logo">A <span>&</span> A</div>
+      <p data-i18n="footer.tagline">Made with love, for you.</p>
+      <p data-i18n="footer.copy">© 2025 · Always yours</p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script>
+    /* ── Story translations ── */
+    const storyEn = {
+      'story.hero.title':  '🪱 Two little worms 🪱',
+      'ai.section.label': 'From Andrés, fresh every time',
+      'ai.section.title': 'A message just for you',
+      'ai.section.desc':  'Every time you press this button, something new is written — just for you, just for this moment.',
+      'story.start.date':  'October 22, 2025 · Istanbul, Turkey',
+      'story.start.quote': 'Two people. One city. Neither of us saw it coming.',
+      'story.start.body':  'It started in Istanbul — a city of bridges between worlds. We met for the first time, nervous and full of butterflies, in a place neither of us calls home. And somehow, in the middle of all that unfamiliarity, everything felt exactly right. That was the moment the story began.',
+      'story.photo.coming':'photo coming',
+
+      'story.memories.label': 'Our favorite moments',
+      'story.memories.title': "The ones we'll never forget",
+      'story.drag':           '← drag to explore →',
+
+      'story.mem1.date':    'October 2025',
+      'story.mem1.title':   'The first moment',
+      'story.mem1.caption': 'A memory we will fill in together.',
+      'story.mem2.date':    'Coming soon',
+      'story.mem2.title':   'A moment to remember',
+      'story.mem2.caption': 'A memory we will fill in together.',
+      'story.mem3.date':    'Coming soon',
+      'story.mem3.title':   'A night to remember',
+      'story.mem3.caption': 'A memory we will fill in together.',
+      'story.mem4.date':    'Coming soon',
+      'story.mem4.title':   'A perfect day',
+      'story.mem4.caption': 'A memory we will fill in together.',
+      'story.mem5.date':    'Coming soon',
+      'story.mem5.title':   'Our song moment',
+      'story.mem5.caption': 'A memory we will fill in together.',
+      'story.mem6.date':    'Coming soon',
+      'story.mem6.title':   'Just us',
+      'story.mem6.caption': 'A memory we will fill in together.',
+
+      'story.places.label':    'Places that are ours',
+      'story.places.title':    "Where we've been",
+      'story.place1.country':  'Turkey · October 2025',
+      'story.place1.caption':  'Where it all began. The city that started everything.',
+      'story.place2.country':  'Georgia · January 2026',
+      'story.place2.caption':  'The city where we finally stopped pretending.',
+      'story.place3.country':  'Russia · March 2026',
+      'story.place3.caption':  'Her home. The next step toward our life together.',
+
+      'story.love.label': 'From Andrés, to Arina',
+      'story.love.title': 'What I love about you',
+      'story.love.1': 'How caring you are — it shows in everything you do.',
+      'story.love.2': 'How understanding you are — you never make me feel judged.',
+      'story.love.3': 'That you are always there for me — no matter what, no matter when.',
+      'story.love.4': 'The support you give — even across the distance, I always feel it.',
+      'story.love.5': 'How funny you are — you always have me laughing without even trying.',
+      'story.love.6': 'How calm and relaxed everything feels when we\'re together — where you can just be yourself, my little baby.',
+
+      'story.closing':      'You are so awesome, and I always want to eat your face :3',
+      'story.closing.sign': '— Andrés, always',
+    };
+
+    const storyRu = {
+      'story.hero.title':  '🪱 Два маленьких червячка 🪱',
+      'ai.section.label': 'От Андреса, каждый раз новое',
+      'ai.section.title': 'Послание только для тебя',
+      'ai.section.desc':  'Каждый раз, когда ты нажимаешь эту кнопку, пишется что-то новое — только для тебя, только для этого момента.',
+      'story.start.date':  '22 октября 2025 · Стамбул, Турция',
+      'story.start.quote': 'Двое. Один город. Никто из нас не ожидал.',
+      'story.start.body':  'Всё началось в Стамбуле — городе мостов между мирами. Мы встретились впервые, нервничая и переполненные бабочками в животе, в месте, которое ни один из нас не называет домом. И каким-то образом, посреди всей этой незнакомости, всё казалось именно правильным. Это был момент, когда история началась.',
+      'story.photo.coming':'фото скоро',
+
+      'story.memories.label': 'Наши любимые моменты',
+      'story.memories.title': 'Те, которые мы никогда не забудем',
+      'story.drag':           '← листай →',
+
+      'story.mem1.date':    'Октябрь 2025',
+      'story.mem1.title':   'Первый момент',
+      'story.mem1.caption': 'Воспоминание, которое мы заполним вместе.',
+      'story.mem2.date':    'Скоро',
+      'story.mem2.title':   'Момент, который запомнится',
+      'story.mem2.caption': 'Воспоминание, которое мы заполним вместе.',
+      'story.mem3.date':    'Скоро',
+      'story.mem3.title':   'Ночь, которую не забыть',
+      'story.mem3.caption': 'Воспоминание, которое мы заполним вместе.',
+      'story.mem4.date':    'Скоро',
+      'story.mem4.title':   'Идеальный день',
+      'story.mem4.caption': 'Воспоминание, которое мы заполним вместе.',
+      'story.mem5.date':    'Скоро',
+      'story.mem5.title':   'Наш музыкальный момент',
+      'story.mem5.caption': 'Воспоминание, которое мы заполним вместе.',
+      'story.mem6.date':    'Скоро',
+      'story.mem6.title':   'Только мы',
+      'story.mem6.caption': 'Воспоминание, которое мы заполним вместе.',
+
+      'story.places.label':    'Места, которые наши',
+      'story.places.title':    'Где мы были',
+      'story.place1.country':  'Турция · Октябрь 2025',
+      'story.place1.caption':  'Там всё началось. Город, который запустил всё.',
+      'story.place2.country':  'Грузия · Январь 2026',
+      'story.place2.caption':  'Город, где мы наконец перестали притворяться.',
+      'story.place3.country':  'Россия · Март 2026',
+      'story.place3.caption':  'Её дом. Следующий шаг к нашей жизни вместе.',
+
+      'story.love.label': 'От Андреса — Арине',
+      'story.love.title': 'Что я в тебе люблю',
+      'story.love.1': 'Какая ты заботливая — это видно во всём, что ты делаешь.',
+      'story.love.2': 'Какая ты понимающая — ты никогда не заставляешь меня чувствовать себя осуждённым.',
+      'story.love.3': 'То, что ты всегда рядом — что бы ни случилось, когда бы ни случилось.',
+      'story.love.4': 'Поддержка, которую ты даёшь — даже через расстояние, я всегда её чувствую.',
+      'story.love.5': 'Какая ты смешная — ты всегда заставляешь меня смеяться, даже не стараясь.',
+      'story.love.6': 'Как спокойно и расслабленно всё ощущается, когда мы вместе — где ты можешь просто быть собой, моя маленькая.',
+
+      'story.closing':      'Ты такая классная, и я всегда хочу съесть твоё личико :3',
+      'story.closing.sign': '— Андрес, всегда',
+    };
+
+    Object.assign(translations.en, storyEn);
+    Object.assign(translations.ru, storyRu);
+    applyTranslations();
+
+    /* ── Hero title manual translation (preserves emoji + em tag) ── */
+    function updateHeroTitle() {
+      const el   = document.getElementById('story-hero-title');
+      const lang = localStorage.getItem('lang') || 'en';
+      el.innerHTML = lang === 'ru'
+        ? '🪱 <em>Два маленьких червячка</em> 🪱'
+        : '🪱 <em>Two little worms</em> 🪱';
+    }
+    updateHeroTitle();
+
+    // Re-run on every language toggle
+    const _origToggle = toggleLanguage;
+    toggleLanguage = function() { _origToggle(); updateHeroTitle(); };
+
+    /* ── Love list scroll animation ── */
+    const loveObserver = new IntersectionObserver(entries => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            entry.target.classList.add('visible');
+          }, i * 100);
+        }
+      });
+    }, { threshold: 0.2 });
+
+    document.querySelectorAll('.love-item').forEach(el => loveObserver.observe(el));
+
+    /* ── Memory strip drag to scroll ── */
+    const strip = document.getElementById('memory-strip');
+    let isDown = false, startX, scrollLeft;
+
+    strip.addEventListener('mousedown', e => {
+      isDown = true;
+      strip.style.cursor = 'grabbing';
+      startX = e.pageX - strip.offsetLeft;
+      scrollLeft = strip.scrollLeft;
+    });
+
+    strip.addEventListener('mouseleave', () => { isDown = false; strip.style.cursor = 'grab'; });
+    strip.addEventListener('mouseup',    () => { isDown = false; strip.style.cursor = 'grab'; });
+    strip.addEventListener('mousemove',  e => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x    = e.pageX - strip.offsetLeft;
+      const walk = (x - startX) * 1.5;
+      strip.scrollLeft = scrollLeft - walk;
+    });
+  </script>
+</body>
+</html>

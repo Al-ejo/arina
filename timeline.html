@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A & A ✦ Timeline</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .timeline-page {
+      padding-top: calc(var(--nav-height) + 4rem);
+      padding-bottom: 6rem;
+      min-height: 100vh;
+    }
+
+    .timeline-header {
+      text-align: center;
+      margin-bottom: 5rem;
+    }
+
+    /* ── Center line ── */
+    .timeline-track {
+      position: relative;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .timeline-track::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      transform: translateX(-50%);
+      background: linear-gradient(
+        to bottom,
+        transparent,
+        var(--blush) 8%,
+        var(--mauve) 50%,
+        var(--blush) 92%,
+        transparent
+      );
+    }
+
+    /* ── Milestone item ── */
+    .milestone {
+      display: grid;
+      grid-template-columns: 1fr 60px 1fr;
+      align-items: start;
+      margin-bottom: 5rem;
+      position: relative;
+    }
+
+    /* Alternating: odd = card left, even = card right */
+    .milestone:nth-child(odd)  .milestone-card { grid-column: 1; grid-row: 1; }
+    .milestone:nth-child(odd)  .milestone-dot  { grid-column: 2; grid-row: 1; }
+    .milestone:nth-child(odd)  .milestone-empty{ grid-column: 3; grid-row: 1; }
+
+    .milestone:nth-child(even) .milestone-empty{ grid-column: 1; grid-row: 1; }
+    .milestone:nth-child(even) .milestone-dot  { grid-column: 2; grid-row: 1; }
+    .milestone:nth-child(even) .milestone-card { grid-column: 3; grid-row: 1; }
+
+    .milestone-empty { min-height: 1px; }
+
+    /* ── Dot ── */
+    .milestone-dot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 2rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .dot-ring {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--cream);
+      border: 3px solid var(--mauve);
+      box-shadow: 0 0 0 5px rgba(201,160,192,0.2);
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+
+    .milestone:hover .dot-ring {
+      transform: scale(1.3);
+      box-shadow: 0 0 0 8px rgba(201,160,192,0.15);
+      border-color: var(--plum);
+    }
+
+    /* ── Card ── */
+    .milestone-card {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(242,196,206,0.5);
+      overflow: hidden;
+      transition: transform var(--transition), box-shadow var(--transition);
+      margin: 0 1rem;
+    }
+
+    .milestone-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 48px rgba(122,92,127,0.12);
+    }
+
+    /* Photo slot */
+    .milestone-photo {
+      position: relative;
+      aspect-ratio: 4/3;
+      background: linear-gradient(135deg, var(--blush-light), rgba(201,160,192,0.2));
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .milestone-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .photo-placeholder-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--mauve);
+      opacity: 0.6;
+    }
+
+    .photo-placeholder-inner .ph-icon { font-size: 2.5rem; }
+    .photo-placeholder-inner span {
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-family: var(--font-body);
+    }
+
+    /* Card body */
+    .milestone-body {
+      padding: 1.25rem 1.5rem 1.5rem;
+    }
+
+    .milestone-date-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--gold-light), rgba(212,175,106,0.3));
+      color: #8A6A20;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 0.75rem;
+      border: 1px solid rgba(212,175,106,0.4);
+    }
+
+    .milestone-title {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--plum-dark);
+      margin-bottom: 0.6rem;
+      line-height: 1.3;
+    }
+
+    .milestone-caption {
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      font-style: italic;
+      color: var(--plum);
+      line-height: 1.7;
+    }
+
+    .milestone-icon {
+      font-size: 1.2rem;
+      margin-top: 1rem;
+      opacity: 0.5;
+    }
+
+    /* ── End marker ── */
+    .timeline-end {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .timeline-end-dot {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--blush);
+      border: 2px solid var(--mauve);
+    }
+
+    .timeline-end-text {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--mauve);
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 700px) {
+      .timeline-track::before {
+        left: 20px;
+      }
+
+      .milestone {
+        display: block;
+        padding-left: 56px;
+        margin-bottom: 3rem;
+      }
+
+      .milestone-dot {
+        position: absolute;
+        left: 10px;
+        top: 1.5rem;
+        padding-top: 0;
+      }
+
+      .milestone-empty { display: none; }
+
+      .milestone-card { margin: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="petal-container"></div>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">A <span>&</span> A</a>
+    <ul class="nav-links">
+      <li><a href="index.html"    data-i18n="nav.home">Home</a></li>
+      <li><a href="timeline.html" data-i18n="nav.timeline">Timeline</a></li>
+      <li><a href="gallery.html"  data-i18n="nav.gallery">Gallery</a></li>
+      <li><a href="videos.html"   data-i18n="nav.videos">Videos</a></li>
+      <li><a href="story.html"    data-i18n="nav.story">Our Story</a></li>
+      <li><a href="trips.html"    data-i18n="nav.trips">Trips</a></li>
+      <li><a href="magic.html"    data-i18n="nav.magic">Magic</a></li>
+      <li><a href="private.html"  data-i18n="nav.private">Private</a></li>
+    </ul>
+    <button class="lang-toggle"><span class="flag">🌸</span><span class="lang-label">RU</span></button>
+    <button class="hamburger"><span></span><span></span><span></span></button>
+  </nav>
+  <div class="nav-drawer">
+    <a href="index.html"    data-i18n="nav.home">Home</a>
+    <a href="timeline.html" data-i18n="nav.timeline">Timeline</a>
+    <a href="gallery.html"  data-i18n="nav.gallery">Gallery</a>
+    <a href="videos.html"   data-i18n="nav.videos">Videos</a>
+    <a href="story.html"    data-i18n="nav.story">Our Story</a>
+    <a href="trips.html"    data-i18n="nav.trips">Trips</a>
+    <a href="magic.html"    data-i18n="nav.magic">Magic</a>
+    <a href="private.html"  data-i18n="nav.private">Private</a>
+    <button class="lang-toggle" style="align-self:flex-start"><span class="flag">🌸</span><span class="lang-label">RU</span></button>
+  </div>
+
+  <!-- Page -->
+  <div class="timeline-page">
+    <div class="container">
+
+      <!-- Header -->
+      <div class="timeline-header">
+        <span class="section-label fade-in" data-i18n="nav.timeline">Timeline</span>
+        <h1 class="section-title fade-in delay-1" data-i18n="timeline.title">Our story so far</h1>
+        <p class="section-subtitle fade-in delay-2" style="margin:0 auto;text-align:center" data-i18n="timeline.subtitle">
+          Every chapter, every moment — the ones that made us us.
+        </p>
+      </div>
+
+      <!-- Timeline track -->
+      <div class="timeline-track" id="timeline-track"></div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-logo">A <span>&</span> A</div>
+      <p data-i18n="footer.tagline">Made with love, for you.</p>
+      <p data-i18n="footer.copy">© 2025 · Always yours</p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script>
+    // ── Timeline data — newest to oldest ──
+    // To add a photo: set src to 'images/your-photo.jpg'
+    const milestones = [
+      {
+        date:      'March 26, 2026',
+        dateRu:    '26 марта 2026',
+        title:     'Together in Russia',
+        titleRu:   'Вместе в России',
+        caption:   'Stepping into your world for the first time. Your streets, your language, your home.',
+        captionRu: 'Впервые я вошёл в твой мир. Твои улицы, твой язык, твой дом.',
+        icon:      '🇷🇺',
+        src:       '',
+      },
+      {
+        date:      'January 8, 2026',
+        dateRu:    '8 января 2026',
+        title:     'Our Second Meet',
+        titleRu:   'Наша вторая встреча',
+        caption:   'The second time we met, the nerves were gone and something certain took their place. This was real.',
+        captionRu: 'Когда мы встретились во второй раз, волнение исчезло, и его место заняла уверенность. Это было настоящим.',
+        icon:      '✨',
+        src:       '',
+      },
+      {
+        date:      'October 22, 2025',
+        dateRu:    '22 октября 2025',
+        title:     'Our First Meet',
+        titleRu:   'Наша первая встреча',
+        caption:   'Butterflies. A racing heart. The moment I saw you and somehow knew — this person is going to change everything.',
+        captionRu: 'Бабочки в животе. Бьющееся сердце. Тот момент, когда я увидел тебя и каким-то образом понял — этот человек изменит всё.',
+        icon:      '🌸',
+        src:       '',
+      },
+    ];
+
+    function getLang() { return localStorage.getItem('lang') || 'en'; }
+
+    function buildTimeline() {
+      const track = document.getElementById('timeline-track');
+      track.innerHTML = '';
+      const lang = getLang();
+
+      milestones.forEach((m, i) => {
+        const item = document.createElement('div');
+        item.className = 'milestone fade-in';
+        item.style.transitionDelay = (i * 0.15) + 's';
+
+        const title   = lang === 'ru' ? m.titleRu   : m.title;
+        const caption = lang === 'ru' ? m.captionRu : m.caption;
+        const date    = lang === 'ru' ? m.dateRu    : m.date;
+
+        const photoHtml = m.src
+          ? `<img src="${m.src}" alt="${title}" />`
+          : `<div class="photo-placeholder-inner">
+               <span class="ph-icon">📷</span>
+               <span>${lang === 'ru' ? 'фото скоро' : 'photo coming'}</span>
+             </div>`;
+
+        item.innerHTML = `
+          <div class="milestone-card">
+            <div class="milestone-photo">${photoHtml}</div>
+            <div class="milestone-body">
+              <div class="milestone-date-badge">${date}</div>
+              <div class="milestone-title">${title}</div>
+              <div class="milestone-caption">${caption}</div>
+              <div class="milestone-icon">${m.icon}</div>
+            </div>
+          </div>
+          <div class="milestone-dot"><div class="dot-ring"></div></div>
+          <div class="milestone-empty"></div>`;
+
+        track.appendChild(item);
+      });
+
+      // End marker
+      const end = document.createElement('div');
+      end.className = 'timeline-end fade-in';
+      end.innerHTML = `
+        <div class="timeline-end-dot"></div>
+        <div class="timeline-end-text" data-i18n="timeline.end">
+          ${lang === 'ru' ? 'и это только начало ✦' : 'and this is only the beginning ✦'}
+        </div>`;
+      track.appendChild(end);
+
+      // Observe all new fade-in elements
+      document.querySelectorAll('.fade-in:not(.visible)').forEach(el => observer.observe(el));
+    }
+
+    // Add timeline translations
+    const tlEn = { 'timeline.title': 'Our story so far', 'timeline.subtitle': 'Every chapter, every moment — the ones that made us us.', 'timeline.end': 'and this is only the beginning ✦' };
+    const tlRu = { 'timeline.title': 'Наша история', 'timeline.subtitle': 'Каждая глава, каждый момент — те, что сделали нас нами.', 'timeline.end': 'и это только начало ✦' };
+    Object.assign(translations.en, tlEn);
+    Object.assign(translations.ru, tlRu);
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.12 });
+
+    // Rebuild on language change
+    const origToggle = toggleLanguage;
+    toggleLanguage = function() { origToggle(); buildTimeline(); };
+
+    buildTimeline();
+  </script>
+</body>
+</html>
